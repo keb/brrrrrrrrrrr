@@ -1,0 +1,26 @@
+#!/bin/sh
+
+show() {
+	echo "$1 $(cat $1)"
+}
+
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_cur_freq
+show /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq
+show /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_min_freq
+show /sys/devices/system/cpu/cpufreq/policy0/cpuinfo_max_freq
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_available_governors
+show /sys/devices/system/cpu/cpufreq/policy0/scaling_available_frequencies
+echo
+show /sys/devices/virtual/thermal/thermal_zone0/temp
+show /sys/devices/virtual/thermal/thermal_zone1/temp
+echo
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-battery/power_supply/battery/current_now
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-battery/power_supply/battery/capacity
+echo
+show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/cur_freq
+show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/available_frequencies
+show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
+show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/available_governors

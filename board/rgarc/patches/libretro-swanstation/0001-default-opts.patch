@@ -1,0 +1,22 @@
+diff --git a/src/libretro/libretro_core_options.h b/src/libretro/libretro_core_options.h
+index 4193c92d..e27bcca7 100644
+--- a/src/libretro/libretro_core_options.h
++++ b/src/libretro/libretro_core_options.h
+@@ -292,7 +292,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
+      {"Software", "Software"},
+      {NULL, NULL},
+    },
+-   "Auto"},
++   "Software"},
+   {"swanstation_GPU_ResolutionScale",
+    "Internal Resolution Scale",
+    NULL,
+@@ -406,7 +406,7 @@ struct retro_core_option_v2_definition option_defs_us[] = {
+      {"false", "Disabled"},
+      {NULL, NULL},
+    },
+-   "true"},
++   "false"},
+   {"swanstation_GPU_ForceNTSCTimings",
+    "Force NTSC Timings",
+    NULL,

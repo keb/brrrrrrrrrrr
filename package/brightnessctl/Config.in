@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BRIGHTNESSCTL
+	bool "brightnessctl"
+	help
+        brightnessctl

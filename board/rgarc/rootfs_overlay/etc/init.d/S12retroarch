@@ -1,0 +1,34 @@
+#!/bin/sh
+
+PIDFILE=/var/run/retroarch.pid
+
+start() {
+	printf "Starting retroarch: "
+	start-stop-daemon -S -q -b -m -p $PIDFILE -N -20 -x /usr/bin/retroarch.sh
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+stop() {
+	printf "Stopping retroarch: "
+	start-stop-daemon -K -q -p $PIDFILE
+	[ $? = 0 ] && echo "OK" || echo "FAIL"
+}
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  restart|reload)
+	restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+

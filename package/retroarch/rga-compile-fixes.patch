@@ -1,0 +1,50 @@
+From 49f123c73a5eda5578181f51c31b3553b1823974 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Sun, 21 Jan 2024 22:50:31 -0500
+Subject: [PATCH 3/5] rga fixes
+
+---
+ deps/libgo2/src/display.c | 4 ++--
+ gfx/drivers/oga_gfx.c     | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/deps/libgo2/src/display.c b/deps/libgo2/src/display.c
+index b91cf0624b..16b6a9f8e3 100644
+--- a/deps/libgo2/src/display.c
++++ b/deps/libgo2/src/display.c
+@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ #include <pthread.h>
+ #include <semaphore.h>
+ 
+-#include <rga/RgaApi.h>
++#include <RgaApi.h>
+ 
+ #define EGL_EGLEXT_PROTOTYPES
+ //#define GL_GLEXT_PROTOTYPES
+@@ -1211,7 +1211,7 @@ go2_context_t* go2_context_create(go2_display_t* display, int width, int height,
+     }
+ 
+ 
+-    result->eglSurface = eglCreateWindowSurface(result->eglDisplay, eglConfig, (EGLNativeWindowType)result->gbmSurface, NULL);	
++    result->eglSurface = eglCreateWindowSurface(result->eglDisplay, eglConfig, (EGLNativeWindowType)result->gbmSurface, NULL);
+     if (result->eglSurface == EGL_NO_SURFACE)
+     {
+         printf("eglCreateWindowSurface failed\n");
+diff --git a/gfx/drivers/oga_gfx.c b/gfx/drivers/oga_gfx.c
+index bb71b27159..4559af65fa 100644
+--- a/gfx/drivers/oga_gfx.c
++++ b/gfx/drivers/oga_gfx.c
+@@ -20,8 +20,8 @@
+ #include <stdint.h>
+ 
+ #include <fcntl.h>
+-#include <rga/RgaApi.h>
+-#include <rga/RockchipRgaMacro.h>
++#include <RgaApi.h>
++#include <drmrga.h>
+ #include <xf86drm.h>
+ #include <xf86drmMode.h>
+ #include <drm/drm_fourcc.h>
+-- 
+2.43.0
+

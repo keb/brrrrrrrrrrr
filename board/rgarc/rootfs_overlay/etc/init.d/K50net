@@ -1,0 +1,19 @@
+#!/bin/sh
+
+start() {
+		/etc/init.d/K40iwd start
+		/etc/init.d/K50sshd start
+}
+
+stop() {
+		/etc/init.d/K40iwd stop
+		/etc/init.d/K50sshd stop
+}
+
+case "$1" in
+	start|stop)
+		"$1";;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 1
+esac

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LIBRETRO_SNES9X2010
+	bool "libretro-snes9x2010"
+	help
+	  Snes9x

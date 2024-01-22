@@ -1,0 +1,27 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		echo performance > /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
+		echo performance > /sys/devices/platform/dmc/devfreq/dmc/governor
+		echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+
+		amixer -q sset 'Playback Path' SPK
+		alsactl restore
+
+		mkdir -p /var/lib/iwd
+		cp /boot/iwd/* /var/lib/iwd/
+
+		mount -o noatime /dev/mmcblk2p1 /userdata \
+			|| mount /dev/mmcblk2p1 /userdata \
+			|| mount -o noatime /dev/mmcblk1p3 /userdata \
+			|| mount /dev/mmcblk1p3 /userdata \
+		;;
+	stop)
+		rmmod 8821cs
+		alsactl store
+		;;
+	*)
+		echo "Usage: $0 {start|stop}"
+		exit 1
+esac

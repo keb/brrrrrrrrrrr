@@ -13,7 +13,7 @@ index 1b8246d585..bb9837617c 100644
  #include <png.h>
  
 +#define BUFFER_COUNT (2)
-+#define BUFFER_MAX (1)
++#define BUFFER_MAX (2)
  
  typedef struct go2_display
  {

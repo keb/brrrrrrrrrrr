@@ -15,18 +15,18 @@ iwd configs are in `/boot/iwd`, there is an example to copy/rename.
 
 ### On boot
 
-Hold TL:            Factory reset. RESET will be printed.
+- Hold TL:            Factory reset. RESET will be printed.
 
 ### Global
 
-Power:              Power off
-F + Power:          Reboot
-select + volup:     enable networking
-select + voldown:   disable networking
-volup:              volume up
-voldown:            volume down
-F + volup:          brightness up
-F + voldown:        brightness down
+- Power:              Power off
+- F + Power:          Reboot
+- select + volup:     enable networking
+- select + voldown:   disable networking
+- volup:              volume up
+- voldown:            volume down
+- F + volup:          brightness up
+- F + voldown:        brightness down
 
 ### RetroArch
 

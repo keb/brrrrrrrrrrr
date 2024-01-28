@@ -1,0 +1,4 @@
+output DSI-1 transform 90
+#output DSI-1 max_render_time 8
+default_border none
+exec retroarch.sh

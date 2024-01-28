@@ -3,11 +3,13 @@
 start() {
 		/etc/init.d/K40iwd start
 		/etc/init.d/K50sshd start
+		/etc/init.d/K49chrony start
 }
 
 stop() {
 		/etc/init.d/K40iwd stop
 		/etc/init.d/K50sshd stop
+		/etc/init.d/K49chrony stop
 }
 
 case "$1" in

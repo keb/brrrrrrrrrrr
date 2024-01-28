@@ -1,0 +1,799 @@
+diff --git a/Documentation/devicetree/bindings/arm/rockchip.yaml b/Documentation/devicetree/bindings/arm/rockchip.yaml
+index 5cf5cbef2cf5..5592fdc85b9e 100644
+--- a/Documentation/devicetree/bindings/arm/rockchip.yaml
++++ b/Documentation/devicetree/bindings/arm/rockchip.yaml
+@@ -37,29 +37,16 @@ properties:
+               - anbernic,rg351v
+           - const: rockchip,rk3326
+ 
+-      - description: Anbernic RG353P
++      - description: Anbernic RK3566 Handheld Gaming Console
+         items:
+-          - const: anbernic,rg353p
+-          - const: rockchip,rk3566
+-
+-      - description: Anbernic RG353PS
+-        items:
+-          - const: anbernic,rg353ps
+-          - const: rockchip,rk3566
+-
+-      - description: Anbernic RG353V
+-        items:
+-          - const: anbernic,rg353v
+-          - const: rockchip,rk3566
+-
+-      - description: Anbernic RG353VS
+-        items:
+-          - const: anbernic,rg353vs
+-          - const: rockchip,rk3566
+-
+-      - description: Anbernic RG503
+-        items:
+-          - const: anbernic,rg503
++          - enum:
++              - anbernic,rg353p
++              - anbernic,rg353ps
++              - anbernic,rg353v
++              - anbernic,rg353vs
++              - anbernic,rg503
++              - anbernic,rg-arc-d
++              - anbernic,rg-arc-s
+           - const: rockchip,rk3566
+ 
+       - description: Asus Tinker board
+diff --git a/Makefile b/Makefile
+index 6c0a4d294444..f4a01ce88b02 100644
+--- a/Makefile
++++ b/Makefile
+@@ -842,6 +842,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR)             := -fstack-protector
+ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
+ 
+ KBUILD_CFLAGS += $(stackp-flags-y)
++KBUILD_CFLAGS += -mtune=cortex-a55 -mcpu=cortex-a55+crc+crypto+fp+simd
+ 
+ KBUILD_RUSTFLAGS-$(CONFIG_WERROR) += -Dwarnings
+ KBUILD_RUSTFLAGS += $(KBUILD_RUSTFLAGS-y)
+diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
+index a7b30e11beaf..647be86ea8a6 100644
+--- a/arch/arm64/boot/dts/rockchip/Makefile
++++ b/arch/arm64/boot/dts/rockchip/Makefile
+@@ -71,6 +71,8 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-rockpro64.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-sapphire.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-sapphire-excavator.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399pro-rock-pi-n10.dtb
++dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg-arc-d.dtb
++dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg-arc-s.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg353p.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg353ps.dtb
+ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg353v.dtb
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts
+new file mode 100644
+index 000000000000..40f67933cb2f
+--- /dev/null
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts
+@@ -0,0 +1,64 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/linux-event-codes.h>
++#include <dt-bindings/pinctrl/rockchip.h>
++#include "rk3566-anbernic-rg-arc.dtsi"
++
++/ {
++	model = "Anbernic RG ARC-D";
++	compatible = "anbernic,rg-arc-d", "rockchip,rk3566";
++
++	aliases {
++		mmc0 = &sdhci;
++		mmc1 = &sdmmc0;
++		mmc2 = &sdmmc1;
++		mmc3 = &sdmmc2;
++	};
++};
++
++/*
++ * Unknown Goodix touchscreen at i2c2 0x14. Needs testing before it's
++ * enabled.
++ */
++&i2c2 {
++	pinctrl-0 = <&i2c2m1_xfer>;
++	pinctrl-names = "default";
++	status = "okay";
++
++         gt927@14 {
++                  compatible = "goodix,gt927";
++                  reg = <0x14>;
++                  interrupt-parent = <&gpio4>;
++                  interrupts = <RK_PB1 IRQ_TYPE_EDGE_FALLING>;
++                  irq-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
++                  reset-gpios = <&gpio4 RK_PA6 GPIO_ACTIVE_HIGH>;
++                  touchscreen-size-x = <640>;
++                  touchscreen-size-y = <480>;
++                  touchscreen-inverted-y;
++                  pinctrl-names = "default";
++                  pinctrl-0 = <&touch_int>;
++          };
++};
++
++&pinctrl {
++        touchscreen {
++                touch_int: touch_int {
++                        rockchip,pins = <4 RK_PB1 RK_FUNC_GPIO &pcfg_pull_up>;
++                };
++        };
++};
++
++&sdhci {
++	bus-width = <8>;
++	mmc-hs200-1_8v;
++	non-removable;
++	pinctrl-0 = <&emmc_bus8>, <&emmc_clk>, <&emmc_cmd>,
++		    <&emmc_datastrobe>, <&emmc_rstnout>;
++	pinctrl-names = "default";
++	vmmc-supply = <&vcc_3v3>;
++	vqmmc-supply = <&vcc_1v8>;
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-s.dts b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-s.dts
+new file mode 100644
+index 000000000000..6264a8c78d0b
+--- /dev/null
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-s.dts
+@@ -0,0 +1,19 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/linux-event-codes.h>
++#include <dt-bindings/pinctrl/rockchip.h>
++#include "rk3566-anbernic-rg-arc.dtsi"
++
++/ {
++	model = "Anbernic RG ARC-S";
++	compatible = "anbernic,rg-arc-s", "rockchip,rk3566";
++
++	aliases {
++		mmc1 = &sdmmc0;
++		mmc2 = &sdmmc1;
++		mmc3 = &sdmmc2;
++	};
++};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi
+new file mode 100644
+index 000000000000..091f38ad8509
+--- /dev/null
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi
+@@ -0,0 +1,257 @@
++// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
++
++/dts-v1/;
++
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/input/linux-event-codes.h>
++#include <dt-bindings/pinctrl/rockchip.h>
++#include "rk3566-anbernic-rgxx3.dtsi"
++
++/ {
++	backlight: backlight {
++		compatible = "pwm-backlight";
++		power-supply = <&vcc_sys>;
++		pwms = <&pwm4 0 25000 0>;
++	};
++
++	battery: battery {
++		compatible = "simple-battery";
++		charge-full-design-microamp-hours = <3472000>;
++		charge-term-current-microamp = <300000>;
++		constant-charge-current-max-microamp = <2000000>;
++		constant-charge-voltage-max-microvolt = <4200000>;
++		factory-internal-resistance-micro-ohms = <117000>;
++		voltage-max-design-microvolt = <4172000>;
++		voltage-min-design-microvolt = <3400000>;
++
++		ocv-capacity-celsius = <20>;
++		ocv-capacity-table-0 =	<4172000 100>, <4054000 95>, <3984000 90>, <3926000 85>,
++					<3874000 80>, <3826000 75>, <3783000 70>, <3746000 65>,
++					<3714000 60>, <3683000 55>, <3650000 50>, <3628000 45>,
++					<3612000 40>, <3600000 35>, <3587000 30>, <3571000 25>,
++					<3552000 20>, <3525000 15>, <3492000 10>, <3446000 5>,
++					<3400000 0>;
++	};
++
++	/* Channels reversed for both headphones and speakers. */
++	sound {
++		compatible = "simple-audio-card";
++		pinctrl-0 = <&hp_det>;
++		pinctrl-names = "default";
++		simple-audio-card,name = "rk817_ext";
++		simple-audio-card,aux-devs = <&spk_amp>;
++		simple-audio-card,format = "i2s";
++		simple-audio-card,hp-det-gpio = <&gpio4 RK_PC6 GPIO_ACTIVE_HIGH>;
++		simple-audio-card,mclk-fs = <256>;
++		simple-audio-card,widgets =
++			"Microphone", "Mic Jack",
++			"Headphone", "Headphones",
++			"Speaker", "Internal Speakers";
++		simple-audio-card,routing =
++			"MICL", "Mic Jack",
++			"Headphones", "HPOL",
++			"Headphones", "HPOR",
++			"Internal Speakers", "Speaker Amp OUTL",
++			"Internal Speakers", "Speaker Amp OUTR",
++			"Speaker Amp INL", "HPOL",
++			"Speaker Amp INR", "HPOR";
++		simple-audio-card,pin-switches = "Internal Speakers";
++
++		simple-audio-card,codec {
++			sound-dai = <&rk817>;
++		};
++
++		simple-audio-card,cpu {
++			sound-dai = <&i2s1_8ch>;
++		};
++	};
++
++	spk_amp: audio-amplifier {
++		compatible = "simple-audio-amplifier";
++		enable-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_HIGH>;
++		pinctrl-0 = <&spk_amp_enable_h>;
++		pinctrl-names = "default";
++		sound-name-prefix = "Speaker Amp";
++	};
++};
++
++&cru {
++	assigned-clocks = <&pmucru CLK_RTC_32K>, <&cru PLL_GPLL>,
++			  <&pmucru PLL_PPLL>, <&cru PLL_VPLL>;
++	assigned-clock-rates = <32768>, <1200000000>,
++			       <200000000>, <128000000>;
++};
++
++&dsi_dphy0 {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	ports {
++		dsi0_in: port@0 {
++			reg = <0>;
++			dsi0_in_vp1: endpoint {
++				remote-endpoint = <&vp1_out_dsi0>;
++			};
++		};
++
++		dsi0_out: port@1 {
++			reg = <1>;
++			mipi_out_panel: endpoint {
++				remote-endpoint = <&mipi_in_panel>;
++			};
++		};
++	};
++
++	panel: panel@0 {
++		compatible = "anbernic,rg-arc-panel", "sitronix,st7701";
++		reg = <0>;
++		backlight = <&backlight>;
++		IOVCC-supply = <&vcc3v3_lcd0_n>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&lcd_rst>;
++		reset-gpios = <&gpio4 RK_PA0 GPIO_ACTIVE_HIGH>;
++		rotation = <90>;
++		VCC-supply = <&vcc3v3_lcd0_n>;
++
++		port {
++			mipi_in_panel: endpoint {
++				remote-endpoint = <&mipi_out_panel>;
++			};
++		};
++	};
++};
++
++/*
++ * Device uses a non-standard six button layout for a gamepad with X,
++ * Y, and Z on the top row of buttons and A, B, and C under the bottom
++ * row.
++ */
++&gpio_keys_control {
++	button-a {
++		gpios = <&gpio3 RK_PC3 GPIO_ACTIVE_LOW>;
++		label = "A";
++		linux,code = <BTN_A>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-b {
++		gpios = <&gpio3 RK_PC2 GPIO_ACTIVE_LOW>;
++		label = "B";
++		linux,code = <BTN_B>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-c {
++		gpios = <&gpio3 RK_PA2 GPIO_ACTIVE_LOW>;
++		label = "C";
++		linux,code = <BTN_C>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-left {
++		gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_LOW>;
++		label = "DPAD-LEFT";
++		linux,code = <BTN_DPAD_LEFT>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-r1 {
++		gpios = <&gpio3 RK_PB4 GPIO_ACTIVE_LOW>;
++		label = "TR";
++		linux,code = <BTN_TR>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-r2 {
++		gpios = <&gpio3 RK_PB3 GPIO_ACTIVE_LOW>;
++		label = "TR2";
++		linux,code = <BTN_TR2>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-right {
++		gpios = <&gpio3 RK_PA5 GPIO_ACTIVE_LOW>;
++		label = "DPAD-RIGHT";
++		linux,code = <BTN_DPAD_RIGHT>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-x {
++		gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_LOW>;
++		label = "X";
++		linux,code = <BTN_X>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-y {
++		gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_LOW>;
++		label = "Y";
++		linux,code = <BTN_Y>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++
++	button-z {
++		gpios = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
++		label = "Z";
++		linux,code = <BTN_Z>;
++		wakeup-source;
++		debounce-interval = <0>;
++	};
++};
++
++&pinctrl {
++	audio-amplifier {
++		spk_amp_enable_h: spk-amp-enable-h {
++			rockchip,pins =
++				<4 RK_PC2 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
++	gpio-lcd {
++		lcd_rst: lcd-rst {
++			rockchip,pins =
++				<4 RK_PA0 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
++	headphone {
++		hp_det: hp-det {
++			rockchip,pins =
++				<4 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++};
++
++&pwm4 {
++	status = "okay";
++};
++
++&rk817 {
++	rk817_charger: charger {
++		monitored-battery = <&battery>;
++		rockchip,resistor-sense-micro-ohms = <10000>;
++		rockchip,sleep-enter-current-microamp = <300000>;
++		rockchip,sleep-filter-current-microamp = <100000>;
++	};
++};
++
++&vp1 {
++	vp1_out_dsi0: endpoint@ROCKCHIP_VOP2_EP_MIPI0 {
++		reg = <ROCKCHIP_VOP2_EP_MIPI0>;
++		remote-endpoint = <&dsi0_in_vp1>;
++	};
++};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg353x.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg353x.dtsi
+index 2a2821f4c580..63a18ff36cea 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg353x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg353x.dtsi
+@@ -8,11 +8,73 @@
+ #include "rk3566-anbernic-rgxx3.dtsi"
+ 
+ / {
++	adc-joystick {
++		compatible = "adc-joystick";
++		io-channels = <&adc_mux 0>,
++			      <&adc_mux 1>,
++			      <&adc_mux 2>,
++			      <&adc_mux 3>;
++		pinctrl-0 = <&joy_mux_en>;
++		pinctrl-names = "default";
++		poll-interval = <60>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		axis@0 {
++			reg = <0>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <1023 15>;
++			linux,code = <ABS_X>;
++		};
++
++		axis@1 {
++			reg = <1>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <15 1023>;
++			linux,code = <ABS_RX>;
++		};
++
++		axis@2 {
++			reg = <2>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <15 1023>;
++			linux,code = <ABS_Y>;
++		};
++
++		axis@3 {
++			reg = <3>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <1023 15>;
++			linux,code = <ABS_RY>;
++		};
++	};
++
++	adc_mux: adc-mux {
++		compatible = "io-channel-mux";
++		channels = "left_x", "right_x", "left_y", "right_y";
++		#io-channel-cells = <1>;
++		io-channels = <&saradc 3>;
++		io-channel-names = "parent";
++		mux-controls = <&gpio_mux>;
++		settle-time-us = <100>;
++	};
++
+ 	backlight: backlight {
+ 		compatible = "pwm-backlight";
+ 		power-supply = <&vcc_sys>;
+ 		pwms = <&pwm4 0 25000 0>;
+ 	};
++
++	gpio_mux: mux-controller {
++		compatible = "gpio-mux";
++		mux-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_LOW>,
++			    <&gpio0 RK_PB7 GPIO_ACTIVE_LOW>;
++		#mux-control-cells = <0>;
++	};
+ };
+ 
+ &cru {
+@@ -83,6 +145,18 @@ button-right {
+ 		linux,code = <BTN_DPAD_RIGHT>;
+ 	};
+ 
++	button-thumbl {
++		gpios = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
++		label = "THUMBL";
++		linux,code = <BTN_THUMBL>;
++	};
++
++	button-thumbr {
++		gpios = <&gpio3 RK_PA2 GPIO_ACTIVE_LOW>;
++		label = "THUMBR";
++		linux,code = <BTN_THUMBR>;
++	};
++
+ 	button-y {
+ 		gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_LOW>;
+ 		label = "WEST";
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg503.dts b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg503.dts
+index c763c7f3b1b3..94e6dd61a2db 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg503.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg503.dts
+@@ -17,6 +17,61 @@ aliases {
+ 		mmc2 = &sdmmc2;
+ 	};
+ 
++	adc-joystick {
++		compatible = "adc-joystick";
++		io-channels = <&adc_mux 0>,
++			      <&adc_mux 1>,
++			      <&adc_mux 2>,
++			      <&adc_mux 3>;
++		pinctrl-0 = <&joy_mux_en>;
++		pinctrl-names = "default";
++		poll-interval = <60>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		axis@0 {
++			reg = <0>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <1023 15>;
++			linux,code = <ABS_X>;
++		};
++
++		axis@1 {
++			reg = <1>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <15 1023>;
++			linux,code = <ABS_RX>;
++		};
++
++		axis@2 {
++			reg = <2>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <15 1023>;
++			linux,code = <ABS_Y>;
++		};
++
++		axis@3 {
++			reg = <3>;
++			abs-flat = <32>;
++			abs-fuzz = <32>;
++			abs-range = <1023 15>;
++			linux,code = <ABS_RY>;
++		};
++	};
++
++	adc_mux: adc-mux {
++		compatible = "io-channel-mux";
++		channels = "left_x", "right_x", "left_y", "right_y";
++		#io-channel-cells = <1>;
++		io-channels = <&saradc 3>;
++		io-channel-names = "parent";
++		mux-controls = <&gpio_mux>;
++		settle-time-us = <100>;
++	};
++
+ 	battery: battery {
+ 		compatible = "simple-battery";
+ 		charge-full-design-microamp-hours = <3472000>;
+@@ -36,6 +91,13 @@ battery: battery {
+ 					<3400000 0>;
+ 	};
+ 
++	gpio_mux: mux-controller {
++		compatible = "gpio-mux";
++		mux-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_LOW>,
++			    <&gpio0 RK_PB7 GPIO_ACTIVE_LOW>;
++		#mux-control-cells = <0>;
++	};
++
+ 	gpio_spi: spi {
+ 		compatible = "spi-gpio";
+ 		pinctrl-names = "default";
+@@ -174,6 +236,18 @@ button-right {
+ 		linux,code = <BTN_DPAD_RIGHT>;
+ 	};
+ 
++	button-thumbl {
++		gpios = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
++		label = "THUMBL";
++		linux,code = <BTN_THUMBL>;
++	};
++
++	button-thumbr {
++		gpios = <&gpio3 RK_PA2 GPIO_ACTIVE_LOW>;
++		label = "THUMBR";
++		linux,code = <BTN_THUMBR>;
++	};
++
+ 	button-y {
+ 		gpios = <&gpio3 RK_PC2 GPIO_ACTIVE_LOW>;
+ 		label = "WEST";
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
+index 8cbf3d9a4f22..7bc10a6553a4 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
+@@ -14,51 +14,6 @@ chosen: chosen {
+ 		stdout-path = "serial2:1500000n8";
+ 	};
+ 
+-	adc-joystick {
+-		compatible = "adc-joystick";
+-		io-channels = <&adc_mux 0>,
+-			      <&adc_mux 1>,
+-			      <&adc_mux 2>,
+-			      <&adc_mux 3>;
+-		pinctrl-0 = <&joy_mux_en>;
+-		pinctrl-names = "default";
+-		poll-interval = <60>;
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		axis@0 {
+-			reg = <0>;
+-			abs-flat = <32>;
+-			abs-fuzz = <32>;
+-			abs-range = <1023 15>;
+-			linux,code = <ABS_X>;
+-		};
+-
+-		axis@1 {
+-			reg = <1>;
+-			abs-flat = <32>;
+-			abs-fuzz = <32>;
+-			abs-range = <15 1023>;
+-			linux,code = <ABS_RX>;
+-		};
+-
+-		axis@2 {
+-			reg = <2>;
+-			abs-flat = <32>;
+-			abs-fuzz = <32>;
+-			abs-range = <15 1023>;
+-			linux,code = <ABS_Y>;
+-		};
+-
+-		axis@3 {
+-			reg = <3>;
+-			abs-flat = <32>;
+-			abs-fuzz = <32>;
+-			abs-range = <1023 15>;
+-			linux,code = <ABS_RY>;
+-		};
+-	};
+-
+ 	adc_keys: adc-keys {
+ 		compatible = "adc-keys";
+ 		io-channels = <&saradc 0>;
+@@ -77,16 +32,6 @@ button-mode {
+ 		};
+ 	};
+ 
+-	adc_mux: adc-mux {
+-		compatible = "io-channel-mux";
+-		channels = "left_x", "right_x", "left_y", "right_y";
+-		#io-channel-cells = <1>;
+-		io-channels = <&saradc 3>;
+-		io-channel-names = "parent";
+-		mux-controls = <&gpio_mux>;
+-		settle-time-us = <100>;
+-	};
+-
+ 	gpio_keys_control: gpio-keys-control {
+ 		compatible = "gpio-keys";
+ 		pinctrl-0 = <&btn_pins_ctrl>;
+@@ -128,18 +73,6 @@ button-start {
+ 			linux,code = <BTN_START>;
+ 		};
+ 
+-		button-thumbl {
+-			gpios = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
+-			label = "THUMBL";
+-			linux,code = <BTN_THUMBL>;
+-		};
+-
+-		button-thumbr {
+-			gpios = <&gpio3 RK_PA2 GPIO_ACTIVE_LOW>;
+-			label = "THUMBR";
+-			linux,code = <BTN_THUMBR>;
+-		};
+-
+ 		button-up {
+ 			gpios = <&gpio3 RK_PA3 GPIO_ACTIVE_LOW>;
+ 			label = "DPAD-UP";
+@@ -172,13 +105,6 @@ button-vol-up {
+ 		};
+ 	};
+ 
+-	gpio_mux: mux-controller {
+-		compatible = "gpio-mux";
+-		mux-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_LOW>,
+-			    <&gpio0 RK_PB7 GPIO_ACTIVE_LOW>;
+-		#mux-control-cells = <0>;
+-	};
+-
+ 	hdmi-con {
+ 		compatible = "hdmi-connector";
+ 		ddc-i2c-bus = <&i2c5>;
+@@ -302,7 +228,7 @@ &hdmi {
+ 	ddc-i2c-bus = <&i2c5>;
+ 	pinctrl-0 = <&hdmitxm0_cec>;
+ 	pinctrl-names = "default";
+-	status = "okay";
++	status = "disabled";
+ };
+ 
+ &hdmi_in {
+@@ -318,7 +244,7 @@ hdmi_out_con: endpoint {
+ };
+ 
+ &hdmi_sound {
+-	status = "okay";
++	status = "disabled";
+ };
+ 
+ &i2c0 {
+@@ -715,7 +641,7 @@ &uart1 {
+ 	pinctrl-0 = <&uart1m1_xfer &uart1m1_ctsn &uart1m1_rtsn>;
+ 	pinctrl-names = "default";
+ 	uart-has-rtscts;
+-	status = "okay";
++	status = "disabled";
+ 
+ 	bluetooth {
+ 		compatible = "realtek,rtl8821cs-bt", "realtek,rtl8723bs-bt";
+diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+index c19c0f1b3778..8d1894a40012 100644
+--- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+@@ -126,7 +126,13 @@ opp-1608000000 {
+ 		opp-1800000000 {
+ 			opp-hz = /bits/ 64 <1800000000>;
+ 			opp-microvolt = <1050000 1050000 1150000>;
++			//opp-microvolt = <1150000>;
+ 		};
++
++		//opp-1992000000 {
++		//	opp-hz = /bits/ 64 <1992000000>;
++		//	opp-microvolt = <1050000 1050000 1150000>;
++		//};
+ 	};
+ 
+ 	display_subsystem: display-subsystem {
+diff --git a/drivers/clk/rockchip/clk-rk3568.c b/drivers/clk/rockchip/clk-rk3568.c
+index b786ddc9af2a..8cb21d10beca 100644
+--- a/drivers/clk/rockchip/clk-rk3568.c
++++ b/drivers/clk/rockchip/clk-rk3568.c
+@@ -78,6 +78,7 @@ static struct rockchip_pll_rate_table rk3568_pll_rates[] = {
+ 	RK3036_PLL_RATE(200000000, 1, 100, 3, 4, 1, 0),
+ 	RK3036_PLL_RATE(148500000, 1, 99, 4, 4, 1, 0),
+ 	RK3036_PLL_RATE(135000000, 2, 45, 4, 1, 1, 0),
++	RK3036_PLL_RATE(128000000, 1, 16, 3, 1, 1, 0),
+ 	RK3036_PLL_RATE(126400000, 1, 79, 5, 3, 1, 0),
+ 	RK3036_PLL_RATE(119000000, 3, 119, 4, 2, 1, 0),
+ 	RK3036_PLL_RATE(115200000, 1, 24, 5, 1, 1, 0),
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index aa55850fbc21..8488fda3eed0 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -1165,7 +1165,8 @@ ifneq ($(NO_LIBTRACEEVENT),1)
+   ifeq ($(feature-libtraceevent), 1)
+     CFLAGS += -DHAVE_LIBTRACEEVENT
+     EXTLIBS += -ltraceevent
+-    LIBTRACEEVENT_VERSION := $(shell $(PKG_CONFIG) --modversion libtraceevent)
++    LIBTRACEEVENT_VERSION := 1.7.5
++    #LIBTRACEEVENT_VERSION := $(shell $(PKG_CONFIG) --modversion libtraceevent)
+     LIBTRACEEVENT_VERSION_1 := $(word 1, $(subst ., ,$(LIBTRACEEVENT_VERSION)))
+     LIBTRACEEVENT_VERSION_2 := $(word 2, $(subst ., ,$(LIBTRACEEVENT_VERSION)))
+     LIBTRACEEVENT_VERSION_3 := $(word 3, $(subst ., ,$(LIBTRACEEVENT_VERSION)))

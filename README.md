@@ -1,9 +1,17 @@
 # BRRRRRRRRRR
 
+## Features
+
+- Linux 6.8-rc2
+- Support for ntfs, vfat, bcachefs w/ zstd
+- Retroarch
+- Sway
+- Upgradable and reset to factory
+
 ## How to build
 
-1. Clone buildroot https://github.com/buildroot/buildroot
-2. In the buildroot dir, run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`.
+1. Clone buildroot https://github.com/buildroot/buildroot and checkout `rgarc-ml` branch
+2. In the buildroot dir, run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`
 3. Run `make`
 4. Image to flash will be in `output/images/BRRRRRRRRRR-rgarc.img`
 
@@ -35,7 +43,7 @@ Check/customize settings
 ### Storage
 
 - `mmcblk1p2` is an ext4 overlay over root `/`
-- /userdata mounted and tried in this order: mmcblk2p1, mmcblk1p3, or none (will
+- /userdata mounted and tried in this order: mmcblk2, mmcblk2p1, mmcblk1p3, or none (will
   write to overlay)
 
 ## FAQ
@@ -49,3 +57,4 @@ A1: Make changes to this tree and rebuild.
 - Macromorgan
 - JELOS team
 - Johnny On Flame
+- Trooper\_Max

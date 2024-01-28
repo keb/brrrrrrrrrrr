@@ -1,0 +1,57 @@
+#!/bin/ash
+
+#set -euo pipefail
+
+mkdir -p /proc /sys
+
+mount -t devtmpfs none /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+
+#exec 1>/dev/tty1 2>&1
+
+while ! ls -l /dev/mmcblk1p1 > /dev/null; do
+    sleep 1
+done
+
+mkdir -p /boot /squash /overlay /mnt
+
+mount /dev/mmcblk1p1 /boot
+
+mkdir -p /boot/update
+
+if [ -f /boot/update/rootfs.squashfs ]; then
+    mv /boot/update/rootfs.squashfs /boot/
+fi
+
+mount -t squashfs /boot/rootfs.squashfs /squash \
+    || (echo "Failed to mount squashfs")
+
+mount -o noatime /dev/mmcblk1p2 /overlay \
+    || (echo "Failed to mount /dev/mmcblk1p2")
+
+mkdir -p /overlay/overlay /overlay/work
+
+evtest --query /dev/input/event5 EV_KEY BTN_TL
+reset=$?
+
+if [ "$reset" -eq 10 ]; then
+    mv /overlay/overlay/userdata /overlay/userdata
+    rm -rf /overlay/overlay/*
+    mv /overlay/userdata /overlay/overlay/userdata
+    #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
+    #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
+    echo "RESET" > /dev/tty1
+    sleep 5
+    clear > /dev/tty1
+fi
+
+mount -t overlay root_overlay -o lowerdir=/squash,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
+
+mount --move /boot /mnt/boot
+mount --move /proc /mnt/proc
+mount --move /sys /mnt/sys
+mount --move /dev /mnt/dev
+
+exec switch_root /mnt /sbin/init
+

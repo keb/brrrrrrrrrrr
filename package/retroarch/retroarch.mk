@@ -15,20 +15,19 @@ RETROARCH_CONF_OPTS += \
 		--disable-discord \
 		--disable-mpv \
 		--disable-opengl1 \
-		--disable-opengl_core \
+		--enable-opengl_core \
 		--disable-oss \
 		--disable-pulse \
 		--disable-sdl2 \
 		--disable-videocore \
 		--disable-vulkan \
 		--disable-vulkan_display \
-		--disable-wayland \
 		--disable-x11 \
 		--enable-alsa \
+		--enable-wayland \
 		--enable-egl \
 		--enable-freetype \
 		--enable-kms \
-		--enable-odroidgo2 \
 		--enable-opengl \
 		--enable-opengles \
 		--enable-opengles3 \

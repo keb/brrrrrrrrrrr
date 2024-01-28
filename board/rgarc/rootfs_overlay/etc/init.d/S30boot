@@ -2,8 +2,8 @@
 
 case "$1" in
 	start)
+        brightnessctl -r
 		echo performance > /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
-		echo performance > /sys/devices/platform/dmc/devfreq/dmc/governor
 		echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
 		amixer -q sset 'Playback Path' SPK
@@ -12,13 +12,19 @@ case "$1" in
 		mkdir -p /var/lib/iwd
 		cp /boot/iwd/* /var/lib/iwd/
 
-		mount -o noatime /dev/mmcblk2p1 /userdata \
+		mount \
+            -o noatime /dev/mmcblk2 /userdata \
+            || mount /dev/mmcblk2 /userdata \
+            || mount -o noatime /dev/mmcblk2p1 /userdata \
 			|| mount /dev/mmcblk2p1 /userdata \
 			|| mount -o noatime /dev/mmcblk1p3 /userdata \
-			|| mount /dev/mmcblk1p3 /userdata \
+			|| mount /dev/mmcblk1p3 /userdata
+
+		rmmod rtw88_8821cs
+		modprobe rtw88_8821cs
 		;;
 	stop)
-		rmmod 8821cs
+        brightnessctl -s
 		alsactl store
 		;;
 	*)

@@ -10,8 +10,10 @@
 
 ## How to build
 
-1. Clone buildroot https://github.com/buildroot/buildroot and checkout `rgarc-ml` branch
-2. In the buildroot dir, run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`
+1. Clone buildroot https://github.com/buildroot/buildroot
+2. Clone this report to somewhere and checkout `rgarc-ml` branch
+3. In the buildroot dir, run `patch -p1 < buildroot.patch` from where you checked out brrrrrrrr
+4. Then run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`
 3. Run `make`
 4. Image to flash will be in `output/images/BRRRRRRRRRR-rgarc.img`
 

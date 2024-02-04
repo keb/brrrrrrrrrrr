@@ -5,11 +5,7 @@ mode_dev=/dev/input/by-path/platform-adc-keys-event-joystick
 
 case "$1" in
     button/power)
-        if ! evtest --query $joypad_dev EV_KEY BTN_TL; then
-            /sbin/reboot
-        else
-            /sbin/poweroff
-        fi
+        /sbin/poweroff
         ;;
     button/volumeup)
         if ! evtest --query $mode_dev EV_KEY BTN_MODE; then

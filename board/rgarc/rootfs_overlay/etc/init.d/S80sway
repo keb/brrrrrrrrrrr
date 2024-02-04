@@ -4,12 +4,12 @@ PIDFILE=/var/run/sway.pid
 
 start() {
 	printf "Starting sway: "
-	start-stop-daemon -S -q -b -m -p $PIDFILE -N -20 -x chrt -- -r 99 sway.sh
+	/usr/bin/sway.sh &
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop() {
 	printf "Stopping sway: "
-	start-stop-daemon -K -q -p $PIDFILE
+	killall sway
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 restart() {

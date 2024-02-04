@@ -1,0 +1,11 @@
+#!/bin/bash
+
+mount -t proc /proc /arch/proc/
+mount -t sysfs /sys /arch/sys/
+mount --rbind /dev /arch/dev/
+
+mount --rbind /tmp/0-runtime-dir /arch/tmp/0-runtime-dir
+
+echo "export XDG_RUNTIME_DIR=/tmp/0-runtime-dir"
+echo "export WAYLAND_DISPLAY=wayland-1"
+exec chroot /arch /bin/bash

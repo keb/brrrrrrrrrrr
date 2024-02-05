@@ -267,28 +267,88 @@ index bb71b27159..4559af65fa 100644
  #include <xf86drm.h>
  #include <xf86drmMode.h>
  #include <drm/drm_fourcc.h>
+diff --git a/gfx/drivers_context/drm_go2_ctx.c b/gfx/drivers_context/drm_go2_ctx.c
+index 856aa0f9a2..ec0dd1030e 100644
+--- a/gfx/drivers_context/drm_go2_ctx.c
++++ b/gfx/drivers_context/drm_go2_ctx.c
+@@ -223,7 +223,7 @@ static bool gfx_ctx_go2_drm_set_video_mode(void *data,
+    frontend_driver_install_signal_handler();
+ 
+ #ifdef HAVE_MENU
+-   if (      config_get_ptr()->bools.video_ctx_scaling 
++   if (      config_get_ptr()->bools.video_ctx_scaling
+          && !(menu_state_get_ptr()->flags & MENU_ST_FLAG_ALIVE))
+    {
+        drm->fb_width    = av_info->geometry.base_width;
+@@ -278,13 +278,13 @@ static void gfx_ctx_go2_drm_check_window(void *data, bool *quit,
+       bool *resize, unsigned *width, unsigned *height)
+ {
+    unsigned w, h;
+-   gfx_ctx_go2_drm_data_t 
++   gfx_ctx_go2_drm_data_t
+       *drm              = (gfx_ctx_go2_drm_data_t*)data;
+ #ifdef HAVE_MENU
+    settings_t *settings = config_get_ptr();
+    bool use_ctx_scaling = settings->bools.video_ctx_scaling;
+ 
+-   if (      use_ctx_scaling 
++   if (      use_ctx_scaling
+          && !(menu_state_get_ptr()->flags & MENU_ST_FLAG_ALIVE))
+    {
+       video_driver_state_t *video_st       = video_state_get_ptr();
+@@ -314,10 +314,10 @@ static bool gfx_ctx_go2_drm_suppress_screensaver(void *data, bool enable) { retu
+ static void gfx_ctx_go2_drm_swap_buffers(void *data)
+ {
+ #ifdef HAVE_EGL
+-   go2_surface_t* 
++   go2_surface_t*
+       surf   = NULL;
+ #endif
+-   gfx_ctx_go2_drm_data_t 
++   gfx_ctx_go2_drm_data_t
+       *drm   = (gfx_ctx_go2_drm_data_t*)data;
+ 
+    int out_w = drm->native_width;
+@@ -346,7 +346,7 @@ static void gfx_ctx_go2_drm_swap_buffers(void *data)
+          surf,
+          src_x, src_y, src_w, src_h,
+          out_y, out_x, out_h, out_w,
+-         GO2_ROTATION_DEGREES_270, 2);
++         GO2_ROTATION_DEGREES_90, 2);
+    go2_context_surface_unlock(drm->context, surf);
+ #endif
+ }
 diff --git a/menu/drivers/ozone.c b/menu/drivers/ozone.c
-index 31a35d84a2..c8ba981a1d 100644
+index 6abb251ab0..a28dfd2721 100644
 --- a/menu/drivers/ozone.c
 +++ b/menu/drivers/ozone.c
+@@ -80,7 +80,7 @@
+ #define HEADER_HEIGHT                 87
+ #define FOOTER_HEIGHT                 78
+ 
+-#define ENTRY_PADDING_HORIZONTAL_HALF 40
++#define ENTRY_PADDING_HORIZONTAL_HALF 4
+ #define ENTRY_PADDING_HORIZONTAL_FULL 140
+ #define ENTRY_PADDING_VERTICAL        20
+ #define ENTRY_HEIGHT                  50
 @@ -91,15 +91,17 @@
  /* > 'SIDEBAR_WIDTH' must be kept in sync with
   *   menu driver metrics */
  #define SIDEBAR_WIDTH                 408
 -#define SIDEBAR_X_PADDING             40
-+#define SIDEBAR_X_PADDING             5
++#define SIDEBAR_X_PADDING             4
  #define SIDEBAR_Y_PADDING             20
  #define SIDEBAR_ENTRY_HEIGHT          50
  #define SIDEBAR_ENTRY_Y_PADDING       10
  #define SIDEBAR_ENTRY_ICON_SIZE       46
 -#define SIDEBAR_ENTRY_ICON_PADDING    15
-+#define SIDEBAR_ENTRY_ICON_PADDING    5
++#define SIDEBAR_ENTRY_ICON_PADDING    4
  #define SIDEBAR_GRADIENT_HEIGHT       28
  
 -#define FULLSCREEN_THUMBNAIL_PADDING  32
-+#define FULLSCREEN_THUMBNAIL_PADDING  10
++#define FULLSCREEN_THUMBNAIL_PADDING  4
 +
-+#define SCALE_FACTOR                   1.5f;
++#define SCALE_FACTOR                  1.5f;
  
  #define CURSOR_SIZE                   64
  /* Cursor becomes active when it moves more
@@ -325,10 +385,10 @@ index 31a35d84a2..c8ba981a1d 100644
  
     if (     (scale_factor != ozone->last_scale_factor)
 diff --git a/retroarch.c b/retroarch.c
-index 413eb025a4..7514d00985 100644
+index b9e9aa5f30..03bdb617fe 100644
 --- a/retroarch.c
 +++ b/retroarch.c
-@@ -4350,7 +4350,7 @@ bool command_event(enum event_command cmd, void *data)
+@@ -4349,7 +4349,7 @@ bool command_event(enum event_command cmd, void *data)
           system("(sleep 1 && shutdown -P now) & disown");
  #else
           command_event(CMD_EVENT_QUIT, NULL);
@@ -337,7 +397,7 @@ index 413eb025a4..7514d00985 100644
  #endif /* HAVE_LAKKA */
  #endif
           break;
-@@ -4365,7 +4365,7 @@ bool command_event(enum event_command cmd, void *data)
+@@ -4364,7 +4364,7 @@ bool command_event(enum event_command cmd, void *data)
           system("(sleep 1 && shutdown -r now) & disown");
  #else
           command_event(CMD_EVENT_QUIT, NULL);

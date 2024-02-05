@@ -2,15 +2,15 @@
 
 ## Features
 
-- Linux 6.8-rc2
-- Support for ntfs, vfat, bcachefs w/ zstd
-- Retroarch
+- Linux 6.8-rc3
+- bcachefs support w/ zstd compression
+- Recent Retroarch
 - Sway
 - Upgradable and reset to factory
 
 ## How to build
 
-1. Clone this repo to `brrrrrrrr` and checkout rgarc-ml branch
+1. Clone this repo to `brrrrrrrr`
 2. Clone buildroot https://github.com/buildroot/buildroot to `buildroot`
 3. In the buildroot dir, run `patch -p1 < /path/to/brrrrrrrr/buildroot.patch`
 4. Then run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`
@@ -30,9 +30,8 @@ iwd configs are in `/boot/iwd`, there is an example to copy/rename.
 ### Global
 
 - Power:              Power off
-- F + Power:          Reboot
-- select + volup:     enable networking
-- select + voldown:   disable networking
+- select + volup:     enable network
+- select + voldown:   disable network
 - volup:              volume up
 - voldown:            volume down
 - F + volup:          brightness up
@@ -44,9 +43,14 @@ Check/customize settings
 
 ### Storage
 
-- `mmcblk1p2` is an ext4 overlay over root `/`
+- Filesystems supported: exfat, vfat, ntfs, ext{2,3,4}, bcachefs
+- `mmcblk1p2` is an ext4 overlay over root `/`.
 - /userdata mounted and tried in this order: mmcblk2, mmcblk2p1, mmcblk1p3, or none (will
   write to overlay)
+
+### Updating
+
+- Copy rootfs.squashfs to /boot/update/
 
 ## FAQ
 

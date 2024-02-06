@@ -1,0 +1,13 @@
+diff --git a/drivers/gpu/drm/panel/panel-sitronix-st7701.c b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
+index 421eb4592b61..6f4fc0bc4df5 100644
+--- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
+@@ -886,7 +886,7 @@ static const struct drm_display_mode rg_arc_mode = {
+ 	.vdisplay	= 640,
+ 	.vsync_start	= 640 + 10,
+ 	.vsync_end	= 640 + 10 + 4,
+-	.vtotal         = 640 + 10 + 4 + 16,
++	.vtotal         = 640 + 10 + 4 + 13,
+ 
+ 	.width_mm	= 63,
+ 	.height_mm	= 84,

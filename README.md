@@ -7,6 +7,7 @@
 - Recent Retroarch
 - Sway
 - Upgradable and reset to factory
+- Ridiculous mode (like quick mode), disable by holding 'A' on startup
 
 ## How to build
 

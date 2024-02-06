@@ -19,9 +19,16 @@
 
 ## Usage
 
+### NOTE: rg-arc-s
+
+If you have the -s variant, then uncomment it in `/boot/extlinux/extlinux.conf`
+and comment the other one.
+
 ### Networking
 
-iwd configs are in `/boot/iwd`, there is an example to copy/rename.
+iwd configs are in `/boot/iwd`, there is an example to copy/rename. Read
+https://wiki.archlinux.org/title/iwd#WPA-PSK or
+https://man.archlinux.org/man/iwd.network.5 for more information.
 
 ### On boot
 
@@ -46,7 +53,7 @@ Check/customize settings
 - Filesystems supported: exfat, vfat, ntfs, ext{2,3,4}, bcachefs
 - `mmcblk1p2` is an ext4 overlay over root `/`.
 - /userdata mounted and tried in this order: mmcblk2, mmcblk2p1, mmcblk1p3, or none (will
-  write to overlay)
+  write directly to overlay in /userdata)
 
 ### Updating
 

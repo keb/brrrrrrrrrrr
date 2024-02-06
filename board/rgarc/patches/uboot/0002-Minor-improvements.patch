@@ -1,0 +1,47 @@
+From a8f4ca075f6cfe2f541aea5f5ae981e0356ecbad Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Tue, 9 Jan 2024 23:45:49 -0500
+Subject: [PATCH] Minor improvements
+
+---
+ board/anbernic/rgxx3_rk3566/rgxx3-rk3566.c | 4 ++--
+ configs/anbernic-rgxx3-rk3566_defconfig    | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/board/anbernic/rgxx3_rk3566/rgxx3-rk3566.c b/board/anbernic/rgxx3_rk3566/rgxx3-rk3566.c
+index d05502f67a..bceb7c214e 100644
+--- a/board/anbernic/rgxx3_rk3566/rgxx3-rk3566.c
++++ b/board/anbernic/rgxx3_rk3566/rgxx3-rk3566.c
+@@ -413,8 +413,8 @@ int rk_board_late_init(void)
+ 	writel(GPIO_WRITEMASK(GPIO_C7 | GPIO_C6 | GPIO_C5) | GPIO_C6,
+ 	       (GPIO0_BASE + GPIO_SWPORT_DR_H));
+ 
+-	if (IS_ENABLED(CONFIG_DM_PWM))
+-		startup_buzz();
++	//if (IS_ENABLED(CONFIG_DM_PWM))
++	//	startup_buzz();
+ 
+ 	return 0;
+ }
+diff --git a/configs/anbernic-rgxx3-rk3566_defconfig b/configs/anbernic-rgxx3-rk3566_defconfig
+index ed6643d9d4..6d9b983564 100644
+--- a/configs/anbernic-rgxx3-rk3566_defconfig
++++ b/configs/anbernic-rgxx3-rk3566_defconfig
+@@ -27,6 +27,7 @@ CONFIG_FIT_VERBOSE=y
+ CONFIG_SPL_LOAD_FIT=y
+ CONFIG_OF_BOARD_SETUP=y
+ CONFIG_OF_STDOUT_VIA_ALIAS=y
++CONFIG_BOOTDELAY=0
+ CONFIG_DEFAULT_FDT_FILE="rockchip/rk3566-anbernic-rgxx3.dtb"
+ # CONFIG_CONSOLE_MUX is not set
+ # CONFIG_DISPLAY_CPUINFO is not set
+@@ -89,5 +90,6 @@ CONFIG_VIDEO_ROCKCHIP=y
+ CONFIG_DISPLAY_ROCKCHIP_DW_MIPI=y
+ CONFIG_VIDEO_BRIDGE=y
+ CONFIG_REGEX=y
++CONFIG_ZSTD=y
+ CONFIG_ERRNO_STR=y
+ # CONFIG_EFI_LOADER is not set
+-- 
+2.43.0
+

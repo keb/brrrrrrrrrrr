@@ -1,0 +1,28 @@
+From 2f91209f165d1085d6a1f48357e02ef9dab96d65 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Sun, 1 Oct 2023 11:57:12 -0400
+Subject: [PATCH] fix build for gcc13
+
+---
+ arch/arm/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 5ebe0619d3..aae29abb70 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -17,9 +17,9 @@ arch-$(CONFIG_CPU_V7A)		=$(call cc-option, -march=armv7-a, \
+ arch-$(CONFIG_CPU_V7M)		=-march=armv7-m
+ arch-$(CONFIG_CPU_V7R)		=-march=armv7-r
+ ifeq ($(CONFIG_ARM64_CRC32),y)
+-arch-$(CONFIG_ARM64)		=-march=armv8-a+crc
++#arch-$(CONFIG_ARM64)		=-march=armv8-a+crc
+ else
+-arch-$(CONFIG_ARM64)		=-march=armv8-a
++#arch-$(CONFIG_ARM64)		=-march=armv8-a
+ endif
+ 
+ # On Tegra systems we must build SPL for the armv4 core on the device
+-- 
+2.43.0
+

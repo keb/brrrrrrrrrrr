@@ -15,18 +15,10 @@ mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/K50sshd 2> /dev/nul
 mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/K49chrony 2> /dev/null || true
 #cp -v ${LINUX_TARGET_DIR}/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dtb ${BINARIES_DIR}/
 
-# find dtb and copy
-dtbs=($(find ${TARGET_DIR}/../build/linux-*/ -name rk3566-anbernic-rg-arc-d.dtb))
-num_dtbs=${#dtbs[@]}
-
-if (( num_dtbs == 0 )); then
-    echo "Failed to find rk3566-anbernic-rg-arc-d.dtb"
-    exit 1
-elif (( num_dtbs > 1 )); then
-    echo "Found multiple rk3566-anbernic-rg-arc-d.dtb: ${found_files[@]}"
-else
-    cp -vf ${dtbs[0]} ${BINARIES_DIR}/
-fi
+# copy dtbs
+rm -rf "${BINARIES_DIR}/rockchip"
+mkdir -p "${BINARIES_DIR}/rockchip"
+find "${TARGET_DIR}"/../build/linux-*/ -name rk3566-anbernic-rg-arc\*.dtb -exec cp -f {} "${BINARIES_DIR}/rockchip/" \;
 
 cp -v ${BOARD_DIR}/extlinux.conf ${BINARIES_DIR}/
 cp -rv ${BOARD_DIR}/iwd/ ${BINARIES_DIR}/

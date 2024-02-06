@@ -8,6 +8,8 @@ mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
+echo -n "b" > /dev/tty1
+
 #exec 1>/dev/tty1 2>&1
 
 while ! ls -l /dev/mmcblk1p1 > /dev/null; do
@@ -20,9 +22,12 @@ mount /dev/mmcblk1p1 /boot
 
 mkdir -p /boot/update
 
-if [ -f /boot/update/rootfs.squashfs ]; then
-    mv /boot/update/rootfs.squashfs /boot/
-fi
+for f in rootfs.squashfs Image initrd.gz; do
+    if [ -f /boot/update/$f ]; then
+        mv -v /boot/update/$f /boot/ > /dev/tty1
+    fi
+done
+echo -n "r" > /dev/tty1
 
 mount -t squashfs /boot/rootfs.squashfs /squash \
     || (echo "Failed to mount squashfs")
@@ -41,11 +46,10 @@ if [ "$reset" -eq 10 ]; then
     mv /overlay/userdata /overlay/overlay/userdata
     #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
     #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
-    echo "RESET" > /dev/tty1
-    sleep 5
-    clear > /dev/tty1
+    echo -n " [ RESET ] " > /dev/tty1
 fi
 
+echo -n "r" > /dev/tty1
 mount -t overlay root_overlay -o lowerdir=/squash,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
 
 mount --move /boot /mnt/boot
@@ -53,5 +57,7 @@ mount --move /proc /mnt/proc
 mount --move /sys /mnt/sys
 mount --move /dev /mnt/dev
 
+echo -n "r" > /mnt/dev/tty1
+clear > /mnt/dev/tty1
 exec switch_root /mnt /sbin/init
 

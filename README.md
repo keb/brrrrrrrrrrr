@@ -30,6 +30,18 @@ iwd configs are in `/boot/iwd`, there is an example to copy/rename. Read
 https://wiki.archlinux.org/title/iwd#WPA-PSK or
 https://man.archlinux.org/man/iwd.network.5 for more information.
 
+### First boot
+
+Stuff that is updated online isn't included to keep the surface area small and
+ensure you are up to date. On first boot after enabling networking, go to
+`Online Updater` and at minimum, update:
+
+- Core Info Files
+- Assets
+
+Recommended to also update databases if you build playlists and shaders if you
+want 'em.
+
 ### On boot
 
 - Hold TL:            Factory reset. RESET will be printed.

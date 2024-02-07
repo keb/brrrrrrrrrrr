@@ -2,12 +2,14 @@
 
 export HOME=/root
 
-history_file=$(cat .config/retroarch/retroarch.cfg | grep content_history_path | sed -e 's/.*=\(.*\)/\1/' -e 's/"//g')
-history_file_abs=$(eval echo $history_file)
-last=$(jq -r '.items[0] | "\"\(.core_path)\" \"\(.path)\""' $history_file_abs)
+last=""
 
-if evtest --query /dev/input/by-path/platform-gpio-keys-control-event-joystick EV_KEY BTN_EAST; then
-	last=""
+if ! evtest --query /dev/input/by-path/platform-gpio-keys-control-event-joystick EV_KEY BTN_EAST; then
+	if [ -f .config/retroarch/retroarch.cfg ]; then
+		history_file=$(cat .config/retroarch/retroarch.cfg | grep content_history_path | sed -e 's/.*=\(.*\)/\1/' -e 's/"//g')
+		history_file_abs=$(eval echo $history_file)
+		last=$(jq -r '.items[0] | "\"\(.core_path)\" \"\(.path)\""' $history_file_abs)
+	fi
 fi
 
 if [ -z "$last" ]; then

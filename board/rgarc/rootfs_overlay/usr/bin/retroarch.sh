@@ -6,7 +6,7 @@ history_file=$(cat .config/retroarch/retroarch.cfg | grep content_history_path |
 history_file_abs=$(eval echo $history_file)
 last=$(jq -r '.items[0] | "\"\(.core_path)\" \"\(.path)\""' $history_file_abs)
 
-if ! evtest --query /dev/input/by-path/platform-gpio-keys-control-event-joystick EV_KEY BTN_EAST; then
+if evtest --query /dev/input/by-path/platform-gpio-keys-control-event-joystick EV_KEY BTN_EAST; then
 	last=""
 fi
 

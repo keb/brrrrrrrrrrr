@@ -11,4 +11,4 @@ if test -z "${XDG_RUNTIME_DIR}"; then
         fi
 fi
 
-exec openvt -s -c 1 -- sway
+exec sway &> /dev/null

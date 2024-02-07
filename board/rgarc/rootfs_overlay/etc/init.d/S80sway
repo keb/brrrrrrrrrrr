@@ -1,10 +1,8 @@
 #!/bin/sh
 
-PIDFILE=/var/run/sway.pid
-
 start() {
 	printf "Starting sway: "
-	/usr/bin/sway.sh &
+	openvt -s -c 1 -- /usr/bin/sway.sh &
 	[ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 stop() {

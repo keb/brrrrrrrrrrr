@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LIBRETRO_ASSETS_OZONE
+	bool "libretro-assets-ozone"
+	depends on BR2_PACKAGE_RETROARCH
+	help
+      Ozone assets for RetroArch

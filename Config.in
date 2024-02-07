@@ -1,5 +1,6 @@
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/brightnessctl/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/evsieve/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-assets-ozone/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-atari800/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-ngp/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-wswan/Config.in"

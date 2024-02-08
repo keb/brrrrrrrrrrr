@@ -1,10 +1,14 @@
 # gitlab-runner exec shell build
 
-image: $CI_REGISTRY/buildroot.org/buildroot/base:20230207.1123
+#image: $CI_REGISTRY/buildroot.org/buildroot/base:20230207.1123
 
 build:
   stage: build
+  before_script:
+    - apt-get update && apt-get install -y curl zstd
   script:
+    - apt-get update
+    - apt-get install -y bc rsync cpio
     - curl -s -L https://github.com/buildroot/buildroot/archive/refs/tags/2023.11.1.tar.gz | tar xvz
     - cd buildroot-2023.11.1
     - patch -p1 < ../buildroot.patch
@@ -14,6 +18,8 @@ build:
   artifacts:
       paths:
         - buildroot-2023.11.1/output/images/brrrrrrrrrr-rgarc.img.zstd
+  only:
+    - master
 
 create_release:
   stage: deploy

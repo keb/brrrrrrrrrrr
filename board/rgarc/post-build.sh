@@ -27,11 +27,7 @@ cp ${TARGET_DIR}/usr/share/libretro/retroarch.cfg ${TARGET_DIR}/etc/retroarch.cf
 cat ${BOARD_DIR}/retroarch.cfg >> ${TARGET_DIR}/etc/retroarch.cfg
 
 # personal stuff
-install -D -m 600 ~/.ssh/id_ed25519.pub ${TARGET_DIR}/root/.ssh/authorized_keys
-
-# make reproducible
-sed -i ${TARGET_DIR}/usr/lib/libstdc++.so.*.py -e "s/$USER/user/g"
-sed -i ${TARGET_DIR}/lib/libstdc++.so.*.py -e "s/$USER/user/g"
+${BOARD_DIR}/post-build-personal.sh || true
 
 # initrd
 temp_dir=$(mktemp -d)

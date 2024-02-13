@@ -12,11 +12,15 @@
 ## How to build
 
 1. Clone this repo to `brrrrrrrr`
-2. Clone buildroot https://github.com/buildroot/buildroot to `buildroot`
+2. Clone buildroot https://github.com/buildroot/buildroot to `buildroot` and checkout tag `2024.11.1`
 3. In the buildroot dir, run `patch -p1 < /path/to/brrrrrrrr/buildroot.patch`
 4. Then run `make BR2_EXTERNAL=/path/to/BRRRRRRRRRR rgarc_defconfig`
 3. Run `make`
 4. Image to flash will be in `output/images/BRRRRRRRRRR-rgarc.img`
+
+Or
+
+Check `Dockerfile`.
 
 ## Usage
 
@@ -27,21 +31,17 @@ and comment the other one.
 
 ### Networking
 
-iwd configs are in `/boot/iwd`, there is an example to copy/rename. Read
-https://wiki.archlinux.org/title/iwd#WPA-PSK or
-https://man.archlinux.org/man/iwd.network.5 for more information.
+#### Via RetroArch (credit to murf)
 
-### First boot
+1. Ensure Settings > Driver > Wi-Fi is set to "iwd"
+2. Setting > Wi-Fi > Connect to Network
+3. Select SSID and enter passphrase via on-screen keyboard
 
-Stuff that is updated online isn't included to keep the surface area small and
-ensure you are up to date. On first boot after enabling networking, go to
-`Online Updater` and at minimum, update:
+-- or --
 
-- Core Info Files
-- Assets
-
-Recommended to also update databases if you build playlists and shaders if you
-want 'em.
+Add iwd ssid config in `/boot/iwd/` according to 
+https://wiki.archlinux.org/title/iwd#WPA-PSK and 
+https://man.archlinux.org/man/iwd.network.5
 
 ### On boot
 
@@ -83,4 +83,5 @@ A1: Make changes to this tree and rebuild.
 - Macromorgan
 - JELOS team
 - Johnny On Flame
+- murf
 - Trooper\_Max

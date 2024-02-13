@@ -21,3 +21,16 @@ index 19f90b8b00..73d2174930 100644
  
  ifeq ($(BR2_PACKAGE_WLROOTS_X11),y)
  SWAY_CONF_OPTS += -Dxwayland=enabled
+diff --git a/package/wlroots/wlroots.mk b/package/wlroots/wlroots.mk
+index bb5c8f497d..20ed5d6b65 100644
+--- a/package/wlroots/wlroots.mk
++++ b/package/wlroots/wlroots.mk
+@@ -14,6 +14,8 @@ WLROOTS_DEPENDENCIES = \
+ 	host-pkgconf \
+ 	host-wayland \
+ 	hwdata \
++	libdrm \
++	libgbm \
+ 	libinput \
+ 	libxkbcommon \
+ 	libegl \

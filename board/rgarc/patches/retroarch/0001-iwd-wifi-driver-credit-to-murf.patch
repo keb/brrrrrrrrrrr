@@ -1,0 +1,846 @@
+From 67846af70dac8533ad70423f2be2b6371043ce82 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Tue, 13 Feb 2024 16:40:53 -0500
+Subject: [PATCH 1/3] iwd wifi driver credit to murf
+
+---
+ Makefile.common            |   1 +
+ configuration.c            |   3 +
+ network/drivers_wifi/iwd.c | 282 +++++++++++++++++++++
+ network/wifi_driver.c      | 491 +++++++++++++++++++------------------
+ network/wifi_driver.h      |   1 +
+ 5 files changed, 533 insertions(+), 245 deletions(-)
+ create mode 100644 network/drivers_wifi/iwd.c
+
+diff --git a/Makefile.common b/Makefile.common
+index 4a872356bd..5217afb5d8 100644
+--- a/Makefile.common
++++ b/Makefile.common
+@@ -794,6 +794,7 @@ ifeq ($(HAVE_WIFI), 1)
+    OBJ += network/wifi_driver.o
+    OBJ += tasks/task_wifi.o
+    OBJ += network/drivers_wifi/nmcli.o
++   OBJ += network/drivers_wifi/iwd.o
+    DEFINES += -DHAVE_WIFI
+ endif
+ 
+diff --git a/configuration.c b/configuration.c
+index 15c163bdc1..43e112fb2e 100644
+--- a/configuration.c
++++ b/configuration.c
+@@ -240,6 +240,7 @@ enum wifi_driver_enum
+ {
+    WIFI_CONNMANCTL          = BLUETOOTH_NULL + 1,
+    WIFI_NMCLI,
++   WIFI_IWD,
+    WIFI_NULL
+ };
+ 
+@@ -1325,6 +1326,8 @@ const char *config_get_default_wifi(void)
+          return "connmanctl";
+       case WIFI_NMCLI:
+          return "nmcli";
++      case WIFI_IWD:
++         return "iwd";
+       case WIFI_NULL:
+          break;
+    }
+diff --git a/network/drivers_wifi/iwd.c b/network/drivers_wifi/iwd.c
+new file mode 100644
+index 0000000000..07fcc366b7
+--- /dev/null
++++ b/network/drivers_wifi/iwd.c
+@@ -0,0 +1,282 @@
++/*  RetroArch - A frontend for libretro.
++ *  Copyright (C) 2014-2017 - Jean-André Santoni
++ *
++ *  RetroArch is free software: you can redistribute it and/or modify it under the terms
++ *  of the GNU General Public License as published by the Free Software Found-
++ *  ation, either version 3 of the License, or (at your option) any later version.
++ *
++ *  RetroArch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
++ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
++ *  PURPOSE.  See the GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License along with RetroArch.
++ *  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <time.h>
++#include <compat/strl.h>
++#include <file/file_path.h>
++#include <array/rbuf.h>
++#include <string/stdstring.h>
++#include <retro_miscellaneous.h>
++#include <string.h>
++
++#include <libretro.h>
++
++#include "../wifi_driver.h"
++#include "../../retroarch.h"
++#include "../../configuration.h"
++#include "../../verbosity.h"
++
++typedef struct
++{
++   wifi_network_scan_t scan;
++} iwd_t;
++
++static void *iwd_init(void)
++{
++   iwd_t *iwd = (iwd_t*)calloc(1, sizeof(iwd_t));
++   return iwd;
++}
++
++static void iwd_free(void *data)
++{
++   iwd_t *iwd = (iwd_t*)data;
++
++   if (iwd)
++   {
++      if (iwd->scan.net_list)
++         RBUF_FREE(iwd->scan.net_list);
++      free(iwd);
++   }
++}
++
++static bool iwd_start(void *data)
++{
++   return true;
++}
++
++static void iwd_stop(void *data) { }
++
++// check if iwd daemon is running
++// iwctl will block otherwise
++static bool iwd_is_daemon_running()
++{
++   FILE* p = NULL;
++   char line[512];
++
++   p = popen("ps -ef | grep -v grep | grep -cw /usr/libexec/iwd", "r");
++   if (fgets(line, sizeof(line), p))
++   {
++      if (line[0] == '1')
++      {
++         pclose(p);
++         return true;
++      }
++   }
++   pclose(p);
++
++   return false;
++}
++
++static bool iwd_enable(void* data, bool enabled)
++{
++   if (!iwd_is_daemon_running())
++      return false;
++
++   if (enabled)
++      pclose(popen("iwctl device wlan0 set-property Powered on", "r"));
++   else
++      pclose(popen("iwctl device wlan0 set-property Powered off", "r"));
++
++   return true;
++}
++
++static bool iwd_connection_info(void *data, wifi_network_info_t *netinfo)
++{
++   FILE *cmd_file = NULL;
++   char line[512];
++   char *state_key = "State";
++   char *ssid_key = "Connected network";
++   char *key = NULL;
++   char* val = NULL;
++
++   if (!netinfo)
++      return false;
++
++   if (!iwd_is_daemon_running())
++      return false;
++
++   // get list of key, value pairs
++   // check connected, and if so, get ssid
++   // "            State                 connected  "
++   // "            Connected network     <ssid>  "
++   cmd_file = popen("iwctl station wlan0 show | tail -n +5", "r");
++
++   if (fgets(line, sizeof(line), cmd_file))
++   {
++      if ((key = strstr(line, state_key)) != NULL)
++      {
++         val = key + strlen(state_key);
++         string_trim_whitespace(val);
++
++         if (strstr(val, "disconnected") != NULL)
++         {
++            pclose(cmd_file);
++            return false;
++         }
++      }
++      else if ((key = strstr(line, ssid_key)) != NULL)
++      {
++         val = key + strlen(ssid_key);
++         string_trim_whitespace(val);
++
++         strlcpy(netinfo->ssid, val, sizeof(netinfo->ssid));
++         netinfo->connected = true;
++
++         pclose(cmd_file);
++         return true;
++      }
++   }
++
++   pclose(cmd_file);
++   return false;
++}
++
++static void iwd_scan(void *data)
++{
++   char line[512];
++   iwd_t *iwd = (iwd_t*)data;
++   FILE *cmd_file = NULL;
++
++   iwd->scan.scan_time = time(NULL);
++
++   if (iwd->scan.net_list)
++      RBUF_FREE(iwd->scan.net_list);
++
++   if (!iwd_is_daemon_running())
++      return; // list will be empty
++
++   // scan for networks
++   // returns immediately, but may take some time to update list
++   pclose(popen("iwctl station wlan0 scan", "r"));
++
++   // parse stdout ssid list
++   // skip 5 line header
++   // strip ANSI color codes
++   // example: "  >   my-ssid                           psk                 ****    "
++   // columns
++   // - 2 space margin
++   // - 4 char is connected (first char will be '>' if connected, ' ' if not)
++   // - 2 space margin
++   // - 32 char ssid
++   // - 2 space margin
++   // - 18 char network type (psk, ..)
++   // - 2 space margin
++   // - 6 char signal strength
++   // total = 2 + 4 + 2 + 32 + 2 + 18 + 2 + 6 = 68 chars wide
++   cmd_file = popen("iwctl station wlan0 get-networks | tail -n +5 | sed -r \"s/[[:cntrl:]]\\[[0-9;]*m//g\"", "r");
++   while (fgets(line, 512, cmd_file))
++   {
++      wifi_network_info_t entry;
++      memset(&entry, 0, sizeof(entry));
++
++      string_trim_whitespace(line);
++
++      if (!line || line[0] == '\0')
++         continue;
++
++      // check if connected
++      // > now at char 0 because trim whitespace
++      if (line[0] == '>')
++      {
++         entry.connected = true;
++         line[0] = ' ';
++         string_trim_whitespace(line);
++      }
++
++      // get ssid
++      // ssid now at char 0 because trim whitespace
++      // column at least 32 chars wide
++      strlcpy(entry.ssid, line, sizeof(entry.ssid));
++      string_trim_whitespace_right(entry.ssid); // ssid cannot have trailing whitespace
++
++      RBUF_PUSH(iwd->scan.net_list, entry);
++   }
++   pclose(cmd_file);
++}
++
++static wifi_network_scan_t* iwd_get_ssids(void *data)
++{
++   iwd_t *iwd = (iwd_t*)data;
++   return &iwd->scan;
++}
++
++static bool iwd_ssid_is_online(void *data, unsigned idx)
++{
++   iwd_t *iwd = (iwd_t*)data;
++
++   if (!iwd->scan.net_list || idx >= RBUF_LEN(iwd->scan.net_list))
++      return false;
++
++   return iwd->scan.net_list[idx].connected;
++}
++
++static bool iwd_connect_ssid(void *data,
++      const wifi_network_info_t *netinfo)
++{
++   iwd_t *iwd = (iwd_t*)data;
++   char cmd[256];
++   int ret, i;
++
++   if (!iwd || !netinfo)
++      return false;
++
++   if (!iwd_is_daemon_running())
++      return false;
++
++   // stores ssid / passphrase as <ssid>.<type> file in /var/lib/iwd, e.g., my-ssid.psk
++   snprintf(cmd, sizeof(cmd),
++         "iwctl --passphrase \"%s\" station wlan0 connect \"%s\"",
++         netinfo->passphrase, netinfo->ssid);
++   if ((ret = pclose(popen(cmd, "r"))) == 0)
++   {
++      for (i = 0; i < RBUF_LEN(iwd->scan.net_list); i++)
++      {
++         wifi_network_info_t* entry = &iwd->scan.net_list[i];
++         entry->connected = strcmp(entry->ssid, netinfo->ssid) == 0;
++      }
++   }
++
++   return true;
++}
++
++static bool iwd_disconnect_ssid(void *data,
++      const wifi_network_info_t *netinfo)
++{
++   if (!iwd_is_daemon_running())
++      return false;
++
++   //netinfo->ssid
++   pclose(popen("iwctl station wlan0 disconnect", "r"));
++
++   return true;
++}
++
++static void iwd_tether_start_stop(void *a, bool b, char *c) { }
++
++wifi_driver_t wifi_iwd = {
++   iwd_init,
++   iwd_free,
++   iwd_start,
++   iwd_stop,
++   iwd_enable,
++   iwd_connection_info,
++   iwd_scan,
++   iwd_get_ssids,
++   iwd_ssid_is_online,
++   iwd_connect_ssid,
++   iwd_disconnect_ssid,
++   iwd_tether_start_stop,
++   "iwd",
++};
+diff --git a/network/wifi_driver.c b/network/wifi_driver.c
+index 70eed13eb1..fc757b702a 100644
+--- a/network/wifi_driver.c
++++ b/network/wifi_driver.c
+@@ -1,245 +1,246 @@
+-/*  RetroArch - A frontend for libretro.
+- *  Copyright (C) 2010-2014 - Hans-Kristian Arntzen
+- *  Copyright (C) 2011-2021 - Daniel De Matteis
+- *
+- *  RetroArch is free software: you can redistribute it and/or modify it under the terms
+- *  of the GNU General Public License as published by the Free Software Found-
+- *  ation, either version 3 of the License, or (at your option) any later version.
+- *
+- *  RetroArch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+- *  PURPOSE.  See the GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License along with RetroArch.
+- *  If not, see <http://www.gnu.org/licenses/>.
+- */
+-
+-#include <stdint.h>
+-
+-#ifdef HAVE_CONFIG_H
+-#include "../config.h"
+-#endif
+-
+-#include "../driver.h"
+-#include "../list_special.h"
+-#include "../retroarch.h"
+-#include "../runloop.h"
+-#include "../verbosity.h"
+-
+-#include "wifi_driver.h"
+-
+-wifi_driver_t wifi_null = {
+-   NULL, /* init */
+-   NULL, /* free */
+-   NULL, /* start */
+-   NULL, /* stop */
+-   NULL, /* enable */
+-   NULL, /* connection_info */
+-   NULL, /* scan */
+-   NULL, /* get_ssids */
+-   NULL, /* ssid_is_online */
+-   NULL, /* connect_ssid */
+-   NULL, /* disconnect_ssid */
+-   NULL, /* tether_start_stop */
+-   "null",
+-};
+-
+-const wifi_driver_t *wifi_drivers[] = {
+-#ifdef HAVE_LAKKA
+-   &wifi_connmanctl,
+-#endif
+-#ifdef HAVE_WIFI
+-   &wifi_nmcli,
+-#endif
+-   &wifi_null,
+-   NULL,
+-};
+-
+-static wifi_driver_state_t wifi_driver_st = {0}; /* double alignment */
+-
+-wifi_driver_state_t *wifi_state_get_ptr(void)
+-{
+-   return &wifi_driver_st;
+-}
+-
+-/**
+- * config_get_wifi_driver_options:
+- *
+- * Get an enumerated list of all wifi driver names,
+- * separated by '|'.
+- *
+- * Returns: string listing of all wifi driver names,
+- * separated by '|'.
+- **/
+-const char* config_get_wifi_driver_options(void)
+-{
+-   return char_list_new_special(STRING_LIST_WIFI_DRIVERS, NULL);
+-}
+-
+-void driver_wifi_scan(void)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      wifi_st->drv->scan(wifi_st->data);
+-}
+-
+-bool driver_wifi_enable(bool enabled)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->enable(wifi_st->data, enabled);
+-   return false;
+-}
+-
+-bool driver_wifi_connection_info(wifi_network_info_t *netinfo)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->connection_info(wifi_st->data, netinfo);
+-   return false;
+-}
+-
+-wifi_network_scan_t* driver_wifi_get_ssids(void)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->get_ssids(wifi_st->data);
+-   return NULL;
+-}
+-
+-bool driver_wifi_ssid_is_online(unsigned i)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->ssid_is_online(wifi_st->data, i);
+-   return false;
+-}
+-
+-bool driver_wifi_connect_ssid(const wifi_network_info_t* net)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->connect_ssid(wifi_st->data, net);
+-   return false;
+-}
+-
+-bool driver_wifi_disconnect_ssid(const wifi_network_info_t* net)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      return wifi_st->drv->disconnect_ssid(wifi_st->data, net);
+-   return false;
+-}
+-
+-void driver_wifi_tether_start_stop(bool start, char* configfile)
+-{
+-   wifi_driver_state_t *wifi_st = &wifi_driver_st;
+-   if (wifi_st && wifi_st->drv)
+-      wifi_st->drv->tether_start_stop(wifi_st->data, start, configfile);
+-}
+-
+-bool wifi_driver_ctl(enum rarch_wifi_ctl_state state, void *data)
+-{
+-   wifi_driver_state_t     *wifi_st = &wifi_driver_st;
+-   settings_t             *settings = config_get_ptr();
+-
+-   switch (state)
+-   {
+-      case RARCH_WIFI_CTL_DESTROY:
+-         wifi_st->active          = false;
+-         wifi_st->drv             = NULL;
+-         wifi_st->data            = NULL;
+-         break;
+-      case RARCH_WIFI_CTL_SET_ACTIVE:
+-         wifi_st->active          = true;
+-         break;
+-      case RARCH_WIFI_CTL_FIND_DRIVER:
+-         {
+-            const char *prefix    = "wifi driver";
+-            int i                 = (int)driver_find_index(
+-                  "wifi_driver",
+-                  settings->arrays.wifi_driver);
+-
+-            if (i >= 0)
+-               wifi_st->drv = (const wifi_driver_t*)wifi_drivers[i];
+-            else
+-            {
+-               if (verbosity_is_enabled())
+-               {
+-                  unsigned d;
+-                  RARCH_ERR("Couldn't find any %s named \"%s\"\n", prefix,
+-                        settings->arrays.wifi_driver);
+-                  RARCH_LOG_OUTPUT("Available %ss are:\n", prefix);
+-                  for (d = 0; wifi_drivers[d]; d++)
+-                     RARCH_LOG_OUTPUT("\t%s\n", wifi_drivers[d]->ident);
+-
+-                  RARCH_WARN("Going to default to first %s...\n", prefix);
+-               }
+-
+-               wifi_st->drv = (const wifi_driver_t*)wifi_drivers[0];
+-
+-               if (!wifi_st->drv)
+-                  retroarch_fail(1, "find_wifi_driver()");
+-            }
+-         }
+-         break;
+-      case RARCH_WIFI_CTL_UNSET_ACTIVE:
+-         wifi_st->active = false;
+-         break;
+-      case RARCH_WIFI_CTL_IS_ACTIVE:
+-        return wifi_st->active;
+-      case RARCH_WIFI_CTL_DEINIT:
+-        if (wifi_st->data && wifi_st->drv)
+-        {
+-           if (wifi_st->drv->free)
+-              wifi_st->drv->free(wifi_st->data);
+-        }
+-
+-        wifi_st->data = NULL;
+-        break;
+-      case RARCH_WIFI_CTL_STOP:
+-        if (     wifi_st->drv
+-              && wifi_st->drv->stop
+-              && wifi_st->data)
+-           wifi_st->drv->stop(wifi_st->data);
+-        break;
+-      case RARCH_WIFI_CTL_START:
+-        if (     wifi_st->drv
+-              && wifi_st->data
+-              && wifi_st->drv->start)
+-        {
+-           bool wifi_allow      = settings->bools.wifi_allow;
+-           if (wifi_allow)
+-              return wifi_st->drv->start(wifi_st->data);
+-        }
+-        return false;
+-      case RARCH_WIFI_CTL_INIT:
+-        /* Resource leaks will follow if wifi is initialized twice. */
+-        if (wifi_st->data)
+-           return false;
+-
+-        wifi_driver_ctl(RARCH_WIFI_CTL_FIND_DRIVER, NULL);
+-
+-        if (wifi_st->drv && wifi_st->drv->init)
+-        {
+-           wifi_st->data = wifi_st->drv->init();
+-
+-           if (wifi_st->data)
+-           {
+-              wifi_st->drv->enable(wifi_st->data,
+-                 settings->bools.wifi_enabled);
+-           }
+-           else
+-           {
+-              RARCH_ERR("Failed to initialize wifi driver. Will continue without wifi.\n");
+-              wifi_driver_ctl(RARCH_WIFI_CTL_UNSET_ACTIVE, NULL);
+-           }
+-        }
+-
+-        break;
+-      default:
+-         break;
+-   }
+-
+-   return false;
+-}
++/*  RetroArch - A frontend for libretro.
++ *  Copyright (C) 2010-2014 - Hans-Kristian Arntzen
++ *  Copyright (C) 2011-2021 - Daniel De Matteis
++ *
++ *  RetroArch is free software: you can redistribute it and/or modify it under the terms
++ *  of the GNU General Public License as published by the Free Software Found-
++ *  ation, either version 3 of the License, or (at your option) any later version.
++ *
++ *  RetroArch is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
++ *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
++ *  PURPOSE.  See the GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License along with RetroArch.
++ *  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <stdint.h>
++
++#ifdef HAVE_CONFIG_H
++#include "../config.h"
++#endif
++
++#include "../driver.h"
++#include "../list_special.h"
++#include "../retroarch.h"
++#include "../runloop.h"
++#include "../verbosity.h"
++
++#include "wifi_driver.h"
++
++wifi_driver_t wifi_null = {
++   NULL, /* init */
++   NULL, /* free */
++   NULL, /* start */
++   NULL, /* stop */
++   NULL, /* enable */
++   NULL, /* connection_info */
++   NULL, /* scan */
++   NULL, /* get_ssids */
++   NULL, /* ssid_is_online */
++   NULL, /* connect_ssid */
++   NULL, /* disconnect_ssid */
++   NULL, /* tether_start_stop */
++   "null",
++};
++
++const wifi_driver_t *wifi_drivers[] = {
++#ifdef HAVE_LAKKA
++   &wifi_connmanctl,
++#endif
++#ifdef HAVE_WIFI
++   &wifi_nmcli,
++   &wifi_iwd,
++#endif
++   &wifi_null,
++   NULL,
++};
++
++static wifi_driver_state_t wifi_driver_st = {0}; /* double alignment */
++
++wifi_driver_state_t *wifi_state_get_ptr(void)
++{
++   return &wifi_driver_st;
++}
++
++/**
++ * config_get_wifi_driver_options:
++ *
++ * Get an enumerated list of all wifi driver names,
++ * separated by '|'.
++ *
++ * Returns: string listing of all wifi driver names,
++ * separated by '|'.
++ **/
++const char* config_get_wifi_driver_options(void)
++{
++   return char_list_new_special(STRING_LIST_WIFI_DRIVERS, NULL);
++}
++
++void driver_wifi_scan(void)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      wifi_st->drv->scan(wifi_st->data);
++}
++
++bool driver_wifi_enable(bool enabled)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->enable(wifi_st->data, enabled);
++   return false;
++}
++
++bool driver_wifi_connection_info(wifi_network_info_t *netinfo)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->connection_info(wifi_st->data, netinfo);
++   return false;
++}
++
++wifi_network_scan_t* driver_wifi_get_ssids(void)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->get_ssids(wifi_st->data);
++   return NULL;
++}
++
++bool driver_wifi_ssid_is_online(unsigned i)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->ssid_is_online(wifi_st->data, i);
++   return false;
++}
++
++bool driver_wifi_connect_ssid(const wifi_network_info_t* net)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->connect_ssid(wifi_st->data, net);
++   return false;
++}
++
++bool driver_wifi_disconnect_ssid(const wifi_network_info_t* net)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      return wifi_st->drv->disconnect_ssid(wifi_st->data, net);
++   return false;
++}
++
++void driver_wifi_tether_start_stop(bool start, char* configfile)
++{
++   wifi_driver_state_t *wifi_st = &wifi_driver_st;
++   if (wifi_st && wifi_st->drv)
++      wifi_st->drv->tether_start_stop(wifi_st->data, start, configfile);
++}
++
++bool wifi_driver_ctl(enum rarch_wifi_ctl_state state, void *data)
++{
++   wifi_driver_state_t     *wifi_st = &wifi_driver_st;
++   settings_t             *settings = config_get_ptr();
++
++   switch (state)
++   {
++      case RARCH_WIFI_CTL_DESTROY:
++         wifi_st->active          = false;
++         wifi_st->drv             = NULL;
++         wifi_st->data            = NULL;
++         break;
++      case RARCH_WIFI_CTL_SET_ACTIVE:
++         wifi_st->active          = true;
++         break;
++      case RARCH_WIFI_CTL_FIND_DRIVER:
++         {
++            const char *prefix    = "wifi driver";
++            int i                 = (int)driver_find_index(
++                  "wifi_driver",
++                  settings->arrays.wifi_driver);
++
++            if (i >= 0)
++               wifi_st->drv = (const wifi_driver_t*)wifi_drivers[i];
++            else
++            {
++               if (verbosity_is_enabled())
++               {
++                  unsigned d;
++                  RARCH_ERR("Couldn't find any %s named \"%s\"\n", prefix,
++                        settings->arrays.wifi_driver);
++                  RARCH_LOG_OUTPUT("Available %ss are:\n", prefix);
++                  for (d = 0; wifi_drivers[d]; d++)
++                     RARCH_LOG_OUTPUT("\t%s\n", wifi_drivers[d]->ident);
++
++                  RARCH_WARN("Going to default to first %s...\n", prefix);
++               }
++
++               wifi_st->drv = (const wifi_driver_t*)wifi_drivers[0];
++
++               if (!wifi_st->drv)
++                  retroarch_fail(1, "find_wifi_driver()");
++            }
++         }
++         break;
++      case RARCH_WIFI_CTL_UNSET_ACTIVE:
++         wifi_st->active = false;
++         break;
++      case RARCH_WIFI_CTL_IS_ACTIVE:
++        return wifi_st->active;
++      case RARCH_WIFI_CTL_DEINIT:
++        if (wifi_st->data && wifi_st->drv)
++        {
++           if (wifi_st->drv->free)
++              wifi_st->drv->free(wifi_st->data);
++        }
++
++        wifi_st->data = NULL;
++        break;
++      case RARCH_WIFI_CTL_STOP:
++        if (     wifi_st->drv
++              && wifi_st->drv->stop
++              && wifi_st->data)
++           wifi_st->drv->stop(wifi_st->data);
++        break;
++      case RARCH_WIFI_CTL_START:
++        if (     wifi_st->drv
++              && wifi_st->data
++              && wifi_st->drv->start)
++        {
++           bool wifi_allow      = settings->bools.wifi_allow;
++           if (wifi_allow)
++              return wifi_st->drv->start(wifi_st->data);
++        }
++        return false;
++      case RARCH_WIFI_CTL_INIT:
++        /* Resource leaks will follow if wifi is initialized twice. */
++        if (wifi_st->data)
++           return false;
++
++        wifi_driver_ctl(RARCH_WIFI_CTL_FIND_DRIVER, NULL);
++
++        if (wifi_st->drv && wifi_st->drv->init)
++        {
++           wifi_st->data = wifi_st->drv->init();
++
++           if (wifi_st->data)
++           {
++              wifi_st->drv->enable(wifi_st->data,
++                 settings->bools.wifi_enabled);
++           }
++           else
++           {
++              RARCH_ERR("Failed to initialize wifi driver. Will continue without wifi.\n");
++              wifi_driver_ctl(RARCH_WIFI_CTL_UNSET_ACTIVE, NULL);
++           }
++        }
++
++        break;
++      default:
++         break;
++   }
++
++   return false;
++}
+diff --git a/network/wifi_driver.h b/network/wifi_driver.h
+index 0b3b3648f6..0ae63803d8 100644
+--- a/network/wifi_driver.h
++++ b/network/wifi_driver.h
+@@ -124,6 +124,7 @@ extern const wifi_driver_t *wifi_drivers[];
+ 
+ extern wifi_driver_t wifi_connmanctl;
+ extern wifi_driver_t wifi_nmcli;
++extern wifi_driver_t wifi_iwd;
+ 
+ RETRO_END_DECLS
+ 
+-- 
+2.43.1
+

@@ -10,29 +10,66 @@ RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libg
 RETROARCH_LICENSE = GPL-3.0-or-later
 RETROARCH_LICENSE_FILES = COPYING
 RETROARCH_CONF_OPTS += \
+		--disable-al \
 		--disable-audiomixer \
+		--disable-blissbox \
+		--disable-bsv_movie \
+		--disable-builtinbearssl \
+		--disable-builtinflac \
+		--disable-builtinglslang \
+		--disable-builtinmbedtls \
+		--disable-builtinzlib \
 		--disable-cdrom \
+		--disable-coreaudio \
+		--disable-crtswitchres \
 		--disable-discord \
+		--disable-dr_mp3 \
+		--disable-dsound \
+		--disable-ffmpeg \
+		--disable-glslang \
+		--disable-imageviewer \
+		--disable-jack \
+		--disable-kms \
+		--disable-materialui \
+		--disable-microphone \
 		--disable-mpv \
+		--disable-networkgamepad \
+		--disable-nvda \
 		--disable-opengl1 \
-		--enable-opengl_core \
+		--disable-opengl_core \
 		--disable-oss \
+		--disable-parport \
 		--disable-pulse \
+		--disable-qt \
+		--disable-rpiled \
+		--disable-sdl \
 		--disable-sdl2 \
+		--disable-sixel \
+		--disable-slang \
+		--disable-spirv_cross \
+		--disable-ssa \
+		--disable-systemd \
+		--disable-systemmbedtls \
+		--disable-tinyalsa \
+		--disable-video_filter \
 		--disable-videocore \
+		--disable-videoprocessor \
 		--disable-vulkan \
 		--disable-vulkan_display \
+		--disable-wasapi \
+		--disable-winmm \
 		--disable-x11 \
+		--disable-xaudio \
 		--enable-alsa \
-		--enable-wayland \
 		--enable-egl \
 		--enable-freetype \
-		--enable-kms \
 		--enable-opengl \
 		--enable-opengles \
 		--enable-opengles3 \
 		--enable-opengles3_2 \
 		--enable-udev \
+		--enable-wayland \
+		--enable-wifi \
 		--enable-zlib \
 
 define RETROARCH_CONF_FIX

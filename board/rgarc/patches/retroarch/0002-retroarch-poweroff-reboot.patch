@@ -1,0 +1,34 @@
+From 765ab140d695e20ab06177f4c5f2c53220b5a3dc Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Tue, 13 Feb 2024 16:41:37 -0500
+Subject: [PATCH 2/3] retroarch poweroff/reboot
+
+---
+ retroarch.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/retroarch.c b/retroarch.c
+index b9e9aa5f30..03bdb617fe 100644
+--- a/retroarch.c
++++ b/retroarch.c
+@@ -4349,7 +4349,7 @@ bool command_event(enum event_command cmd, void *data)
+          system("(sleep 1 && shutdown -P now) & disown");
+ #else
+          command_event(CMD_EVENT_QUIT, NULL);
+-         system("shutdown -P now");
++         system("poweroff");
+ #endif /* HAVE_LAKKA */
+ #endif
+          break;
+@@ -4364,7 +4364,7 @@ bool command_event(enum event_command cmd, void *data)
+          system("(sleep 1 && shutdown -r now) & disown");
+ #else
+          command_event(CMD_EVENT_QUIT, NULL);
+-         system("shutdown -r now");
++         system("reboot");
+ #endif /* HAVE_LAKKA */
+ #endif
+          break;
+-- 
+2.43.1
+

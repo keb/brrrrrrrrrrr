@@ -11,7 +11,7 @@ case "$1" in
         if ! evtest --query $mode_dev EV_KEY BTN_MODE; then
             brightnessctl s 1%+ -n 1 -q
         elif ! evtest --query $joypad_dev EV_KEY BTN_SELECT; then
-            /etc/init.d/K50net start
+	    iwctl device wlan0 set-property Powered on
         else
             amixer sset Master 1%+ -q
         fi
@@ -20,7 +20,7 @@ case "$1" in
         if ! evtest --query $mode_dev EV_KEY BTN_MODE; then
             brightnessctl s 1%- -n 1 -q
         elif ! evtest --query $joypad_dev EV_KEY BTN_SELECT; then
-            /etc/init.d/K50net stop
+	    iwctl device wlan0 set-property Powered off
         else
             amixer sset Master 1%- -q
         fi

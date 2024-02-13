@@ -1,0 +1,78 @@
+From a7bc8668d34bf51f70072ebe45d90e9a48392e42 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Tue, 13 Feb 2024 16:41:45 -0500
+Subject: [PATCH 3/3] ozone increase size
+
+---
+ menu/drivers/ozone.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/menu/drivers/ozone.c b/menu/drivers/ozone.c
+index 6abb251ab0..a28dfd2721 100644
+--- a/menu/drivers/ozone.c
++++ b/menu/drivers/ozone.c
+@@ -80,7 +80,7 @@
+ #define HEADER_HEIGHT                 87
+ #define FOOTER_HEIGHT                 78
+ 
+-#define ENTRY_PADDING_HORIZONTAL_HALF 40
++#define ENTRY_PADDING_HORIZONTAL_HALF 4
+ #define ENTRY_PADDING_HORIZONTAL_FULL 140
+ #define ENTRY_PADDING_VERTICAL        20
+ #define ENTRY_HEIGHT                  50
+@@ -91,15 +91,17 @@
+ /* > 'SIDEBAR_WIDTH' must be kept in sync with
+  *   menu driver metrics */
+ #define SIDEBAR_WIDTH                 408
+-#define SIDEBAR_X_PADDING             40
++#define SIDEBAR_X_PADDING             4
+ #define SIDEBAR_Y_PADDING             20
+ #define SIDEBAR_ENTRY_HEIGHT          50
+ #define SIDEBAR_ENTRY_Y_PADDING       10
+ #define SIDEBAR_ENTRY_ICON_SIZE       46
+-#define SIDEBAR_ENTRY_ICON_PADDING    15
++#define SIDEBAR_ENTRY_ICON_PADDING    4
+ #define SIDEBAR_GRADIENT_HEIGHT       28
+ 
+-#define FULLSCREEN_THUMBNAIL_PADDING  32
++#define FULLSCREEN_THUMBNAIL_PADDING  4
++
++#define SCALE_FACTOR                  1.5f;
+ 
+ #define CURSOR_SIZE                   64
+ /* Cursor becomes active when it moves more
+@@ -8607,7 +8609,7 @@ static void *ozone_init(void **userdata, bool video_is_threaded)
+    ozone->last_width                            = width;
+    ozone->last_height                           = height;
+    ozone->last_scale_factor                     = gfx_display_get_dpi_scale(p_disp,
+-         settings, width, height, false, false);
++         settings, width, height, false, false) * SCALE_FACTOR;
+    ozone->last_thumbnail_scale_factor           = settings->floats.ozone_thumbnail_scale_factor;
+ 
+    ozone->selection_buf_old.list                = NULL;
+@@ -9037,10 +9039,10 @@ static void ozone_set_layout(
+ 
+    /* Calculate dimensions */
+    ozone->dimensions.header_height                  = HEADER_HEIGHT * scale_factor;
+-   ozone->dimensions.footer_height                  = FOOTER_HEIGHT * scale_factor;
++   ozone->dimensions.footer_height                  = FOOTER_HEIGHT * scale_factor / SCALE_FACTOR;
+ 
+-   ozone->dimensions.entry_padding_horizontal_half  = ENTRY_PADDING_HORIZONTAL_HALF * scale_factor;
+-   ozone->dimensions.entry_padding_horizontal_full  = ENTRY_PADDING_HORIZONTAL_FULL * scale_factor;
++   ozone->dimensions.entry_padding_horizontal_half  = ENTRY_PADDING_HORIZONTAL_HALF * scale_factor / SCALE_FACTOR;
++   ozone->dimensions.entry_padding_horizontal_full  = ENTRY_PADDING_HORIZONTAL_FULL * scale_factor / SCALE_FACTOR;
+    ozone->dimensions.entry_padding_vertical         = ENTRY_PADDING_VERTICAL * scale_factor;
+    ozone->dimensions.entry_height                   = ENTRY_HEIGHT * scale_factor;
+    ozone->dimensions.entry_spacing                  = ENTRY_SPACING * scale_factor;
+@@ -9747,7 +9749,7 @@ static void ozone_render(void *data,
+    /* Check whether screen dimensions or menu scale
+     * factor have changed */
+    scale_factor           = gfx_display_get_dpi_scale(p_disp, settings,
+-         width, height, false, false);
++         width, height, false, false) * SCALE_FACTOR;
+    thumbnail_scale_factor = settings->floats.ozone_thumbnail_scale_factor;
+ 
+    if (     (scale_factor != ozone->last_scale_factor)
+-- 
+2.43.1
+

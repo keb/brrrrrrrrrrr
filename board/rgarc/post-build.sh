@@ -10,10 +10,9 @@ mkdir -p ${TARGET_DIR}/userdata
 sed -i ${TARGET_DIR}/etc/ssh/sshd_config -e "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/"
 rm -f ${TARGET_DIR}/etc/init.d/{S01syslogd,S02klogd,S01seedrng}
 rm -f ${TARGET_DIR}/etc/acpi/events/powerbtn
-mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/K40iwd 2> /dev/null || true
-mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/K50sshd 2> /dev/null || true
-mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/K49chrony 2> /dev/null || true
-#cp -v ${LINUX_TARGET_DIR}/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dtb ${BINARIES_DIR}/
+mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/S90iwd 2> /dev/null || true
+mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/S91chrony 2> /dev/null || true
+mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/S92sshd 2> /dev/null || true
 
 # copy dtbs
 rm -rf "${BINARIES_DIR}/rockchip"
@@ -21,7 +20,6 @@ mkdir -p "${BINARIES_DIR}/rockchip"
 find "${TARGET_DIR}"/../build/linux-*/ -name rk3566-anbernic-rg-arc\*.dtb -exec cp -f {} "${BINARIES_DIR}/rockchip/" \;
 
 cp -v ${BOARD_DIR}/extlinux.conf ${BINARIES_DIR}/
-cp -rv ${BOARD_DIR}/iwd/ ${BINARIES_DIR}/
 
 cp ${TARGET_DIR}/usr/share/libretro/retroarch.cfg ${TARGET_DIR}/etc/retroarch.cfg
 cat ${BOARD_DIR}/retroarch.cfg >> ${TARGET_DIR}/etc/retroarch.cfg

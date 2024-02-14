@@ -7,7 +7,7 @@ ARG BR_VER=2023.11.1
 ENV HOSTNAME brrrrrrrrrr
 
 RUN apt-get update && apt-get install -y \
-    build-essential curl bc cpio rsync file git wget unzip python3 libssl-dev dosfstools zstd mtools
+    build-essential curl bc cpio rsync file git wget unzip python3 libssl-dev dosfstools zstd
 
 RUN mkdir -p /workspace
 RUN curl -s -L https://github.com/buildroot/buildroot/archive/refs/tags/${BR_VER}.tar.gz | tar xvz -C /workspace && ls -l /workspace/

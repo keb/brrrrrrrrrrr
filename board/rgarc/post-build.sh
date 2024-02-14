@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2086
+
 set -euo pipefail
 
 BOARD_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -10,7 +12,7 @@ mkdir -p ${TARGET_DIR}/userdata
 sed -i ${TARGET_DIR}/etc/ssh/sshd_config -e "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/"
 rm -f ${TARGET_DIR}/etc/init.d/{S01syslogd,S02klogd,S01seedrng}
 rm -f ${TARGET_DIR}/etc/acpi/events/powerbtn
-mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/S90iwd 2> /dev/null || true
+mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/S70iwd 2> /dev/null || true
 mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/S91chrony 2> /dev/null || true
 mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/S92sshd 2> /dev/null || true
 
@@ -20,6 +22,7 @@ mkdir -p "${BINARIES_DIR}/rockchip"
 find "${TARGET_DIR}"/../build/linux-*/ -name rk3566-anbernic-rg-arc\*.dtb -exec cp -f {} "${BINARIES_DIR}/rockchip/" \;
 
 cp -v ${BOARD_DIR}/extlinux.conf ${BINARIES_DIR}/
+mkdir -p ${BINARIES_DIR}/iwd
 
 cp ${TARGET_DIR}/usr/share/libretro/retroarch.cfg ${TARGET_DIR}/etc/retroarch.cfg
 cat ${BOARD_DIR}/retroarch.cfg >> ${TARGET_DIR}/etc/retroarch.cfg

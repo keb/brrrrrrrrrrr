@@ -1,3 +1,23 @@
+From f4e5e6a6a5ee6c44d83f49431eccb152b9f37744 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Sun, 28 Jan 2024 13:58:17 -0500
+Subject: [PATCH 2/7] RGARC upstream patches from Chris Morgan
+
+---
+ .../devicetree/bindings/arm/rockchip.yaml     |  31 +--
+ arch/arm64/boot/dts/rockchip/Makefile         |   2 +
+ .../dts/rockchip/rk3566-anbernic-rg-arc-d.dts |  42 ++++
+ .../dts/rockchip/rk3566-anbernic-rg-arc-s.dts |  19 ++
+ .../dts/rockchip/rk3566-anbernic-rg-arc.dtsi  | 237 ++++++++++++++++++
+ .../dts/rockchip/rk3566-anbernic-rg353x.dtsi  |  74 ++++++
+ .../dts/rockchip/rk3566-anbernic-rg503.dts    |  74 ++++++
+ .../dts/rockchip/rk3566-anbernic-rgxx3.dtsi   |  74 ------
+ drivers/clk/rockchip/clk-rk3568.c             |   1 +
+ 9 files changed, 458 insertions(+), 96 deletions(-)
+ create mode 100644 arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts
+ create mode 100644 arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-s.dts
+ create mode 100644 arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi
+
 diff --git a/Documentation/devicetree/bindings/arm/rockchip.yaml b/Documentation/devicetree/bindings/arm/rockchip.yaml
 index 5cf5cbef2cf5..5592fdc85b9e 100644
 --- a/Documentation/devicetree/bindings/arm/rockchip.yaml
@@ -41,18 +61,6 @@ index 5cf5cbef2cf5..5592fdc85b9e 100644
            - const: rockchip,rk3566
  
        - description: Asus Tinker board
-diff --git a/Makefile b/Makefile
-index 6c0a4d294444..f4a01ce88b02 100644
---- a/Makefile
-+++ b/Makefile
-@@ -842,6 +842,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR)             := -fstack-protector
- stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
- 
- KBUILD_CFLAGS += $(stackp-flags-y)
-+KBUILD_CFLAGS += -mtune=cortex-a55 -mcpu=cortex-a55+crc+crypto+fp+simd
- 
- KBUILD_RUSTFLAGS-$(CONFIG_WERROR) += -Dwarnings
- KBUILD_RUSTFLAGS += $(KBUILD_RUSTFLAGS-y)
 diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
 index a7b30e11beaf..647be86ea8a6 100644
 --- a/arch/arm64/boot/dts/rockchip/Makefile
@@ -68,10 +76,10 @@ index a7b30e11beaf..647be86ea8a6 100644
  dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3566-anbernic-rg353v.dtb
 diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts
 new file mode 100644
-index 000000000000..40f67933cb2f
+index 000000000000..795fbedc3c1b
 --- /dev/null
 +++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc-d.dts
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,42 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -101,28 +109,6 @@ index 000000000000..40f67933cb2f
 +	pinctrl-0 = <&i2c2m1_xfer>;
 +	pinctrl-names = "default";
 +	status = "okay";
-+
-+         gt927@14 {
-+                  compatible = "goodix,gt927";
-+                  reg = <0x14>;
-+                  interrupt-parent = <&gpio4>;
-+                  interrupts = <RK_PB1 IRQ_TYPE_EDGE_FALLING>;
-+                  irq-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
-+                  reset-gpios = <&gpio4 RK_PA6 GPIO_ACTIVE_HIGH>;
-+                  touchscreen-size-x = <640>;
-+                  touchscreen-size-y = <480>;
-+                  touchscreen-inverted-y;
-+                  pinctrl-names = "default";
-+                  pinctrl-0 = <&touch_int>;
-+          };
-+};
-+
-+&pinctrl {
-+        touchscreen {
-+                touch_int: touch_int {
-+                        rockchip,pins = <4 RK_PB1 RK_FUNC_GPIO &pcfg_pull_up>;
-+                };
-+        };
 +};
 +
 +&sdhci {
@@ -163,10 +149,10 @@ index 000000000000..6264a8c78d0b
 +};
 diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi
 new file mode 100644
-index 000000000000..091f38ad8509
+index 000000000000..a4a60e4a53d4
 --- /dev/null
 +++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi
-@@ -0,0 +1,257 @@
+@@ -0,0 +1,237 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -305,80 +291,60 @@ index 000000000000..091f38ad8509
 +		gpios = <&gpio3 RK_PC3 GPIO_ACTIVE_LOW>;
 +		label = "A";
 +		linux,code = <BTN_A>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-b {
 +		gpios = <&gpio3 RK_PC2 GPIO_ACTIVE_LOW>;
 +		label = "B";
 +		linux,code = <BTN_B>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-c {
 +		gpios = <&gpio3 RK_PA2 GPIO_ACTIVE_LOW>;
 +		label = "C";
 +		linux,code = <BTN_C>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-left {
 +		gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_LOW>;
 +		label = "DPAD-LEFT";
 +		linux,code = <BTN_DPAD_LEFT>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-r1 {
 +		gpios = <&gpio3 RK_PB4 GPIO_ACTIVE_LOW>;
 +		label = "TR";
 +		linux,code = <BTN_TR>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-r2 {
 +		gpios = <&gpio3 RK_PB3 GPIO_ACTIVE_LOW>;
 +		label = "TR2";
 +		linux,code = <BTN_TR2>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-right {
 +		gpios = <&gpio3 RK_PA5 GPIO_ACTIVE_LOW>;
 +		label = "DPAD-RIGHT";
 +		linux,code = <BTN_DPAD_RIGHT>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-x {
 +		gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_LOW>;
 +		label = "X";
 +		linux,code = <BTN_X>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-y {
 +		gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_LOW>;
 +		label = "Y";
 +		linux,code = <BTN_Y>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +
 +	button-z {
 +		gpios = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
 +		label = "Z";
 +		linux,code = <BTN_Z>;
-+		wakeup-source;
-+		debounce-interval = <0>;
 +	};
 +};
 +
@@ -621,7 +587,7 @@ index c763c7f3b1b3..94e6dd61a2db 100644
  		gpios = <&gpio3 RK_PC2 GPIO_ACTIVE_LOW>;
  		label = "WEST";
 diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
-index 8cbf3d9a4f22..7bc10a6553a4 100644
+index 8cbf3d9a4f22..18b8c2e7befa 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
 +++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
 @@ -14,51 +14,6 @@ chosen: chosen {
@@ -726,51 +692,6 @@ index 8cbf3d9a4f22..7bc10a6553a4 100644
  	hdmi-con {
  		compatible = "hdmi-connector";
  		ddc-i2c-bus = <&i2c5>;
-@@ -302,7 +228,7 @@ &hdmi {
- 	ddc-i2c-bus = <&i2c5>;
- 	pinctrl-0 = <&hdmitxm0_cec>;
- 	pinctrl-names = "default";
--	status = "okay";
-+	status = "disabled";
- };
- 
- &hdmi_in {
-@@ -318,7 +244,7 @@ hdmi_out_con: endpoint {
- };
- 
- &hdmi_sound {
--	status = "okay";
-+	status = "disabled";
- };
- 
- &i2c0 {
-@@ -715,7 +641,7 @@ &uart1 {
- 	pinctrl-0 = <&uart1m1_xfer &uart1m1_ctsn &uart1m1_rtsn>;
- 	pinctrl-names = "default";
- 	uart-has-rtscts;
--	status = "okay";
-+	status = "disabled";
- 
- 	bluetooth {
- 		compatible = "realtek,rtl8821cs-bt", "realtek,rtl8723bs-bt";
-diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-index c19c0f1b3778..8d1894a40012 100644
---- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-@@ -126,7 +126,13 @@ opp-1608000000 {
- 		opp-1800000000 {
- 			opp-hz = /bits/ 64 <1800000000>;
- 			opp-microvolt = <1050000 1050000 1150000>;
-+			//opp-microvolt = <1150000>;
- 		};
-+
-+		//opp-1992000000 {
-+		//	opp-hz = /bits/ 64 <1992000000>;
-+		//	opp-microvolt = <1050000 1050000 1150000>;
-+		//};
- 	};
- 
- 	display_subsystem: display-subsystem {
 diff --git a/drivers/clk/rockchip/clk-rk3568.c b/drivers/clk/rockchip/clk-rk3568.c
 index b786ddc9af2a..8cb21d10beca 100644
 --- a/drivers/clk/rockchip/clk-rk3568.c
@@ -783,17 +704,6 @@ index b786ddc9af2a..8cb21d10beca 100644
  	RK3036_PLL_RATE(126400000, 1, 79, 5, 3, 1, 0),
  	RK3036_PLL_RATE(119000000, 3, 119, 4, 2, 1, 0),
  	RK3036_PLL_RATE(115200000, 1, 24, 5, 1, 1, 0),
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index aa55850fbc21..8488fda3eed0 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -1165,7 +1165,8 @@ ifneq ($(NO_LIBTRACEEVENT),1)
-   ifeq ($(feature-libtraceevent), 1)
-     CFLAGS += -DHAVE_LIBTRACEEVENT
-     EXTLIBS += -ltraceevent
--    LIBTRACEEVENT_VERSION := $(shell $(PKG_CONFIG) --modversion libtraceevent)
-+    LIBTRACEEVENT_VERSION := 1.7.5
-+    #LIBTRACEEVENT_VERSION := $(shell $(PKG_CONFIG) --modversion libtraceevent)
-     LIBTRACEEVENT_VERSION_1 := $(word 1, $(subst ., ,$(LIBTRACEEVENT_VERSION)))
-     LIBTRACEEVENT_VERSION_2 := $(word 2, $(subst ., ,$(LIBTRACEEVENT_VERSION)))
-     LIBTRACEEVENT_VERSION_3 := $(word 3, $(subst ., ,$(LIBTRACEEVENT_VERSION)))
+-- 
+2.43.1
+

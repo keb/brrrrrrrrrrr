@@ -1,0 +1,24 @@
+From e29ec36413dc668e167f88905c96b9e37cf59971 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Thu, 12 Oct 2023 23:06:30 -0400
+Subject: [PATCH 1/7] rk3566 kernel copt optimizations
+
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile b/Makefile
+index 7e0b2ad98905..bc2412cc60af 100644
+--- a/Makefile
++++ b/Makefile
+@@ -842,6 +842,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR)             := -fstack-protector
+ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
+ 
+ KBUILD_CFLAGS += $(stackp-flags-y)
++KBUILD_CFLAGS += -mtune=cortex-a55 -mcpu=cortex-a55+crc+crypto+fp+simd
+ 
+ KBUILD_RUSTFLAGS-$(CONFIG_WERROR) += -Dwarnings
+ KBUILD_RUSTFLAGS += $(KBUILD_RUSTFLAGS-y)
+-- 
+2.43.1
+

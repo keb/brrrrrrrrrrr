@@ -1,3 +1,12 @@
+From 086b72bd98c72d84e0ac7e35344c153f9f1fa6b8 Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Wed, 7 Feb 2024 15:10:43 -0500
+Subject: [PATCH 7/7] st7701 (rgarc) fix panel alignment
+
+---
+ drivers/gpu/drm/panel/panel-sitronix-st7701.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 diff --git a/drivers/gpu/drm/panel/panel-sitronix-st7701.c b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
 index 421eb4592b61..6f4fc0bc4df5 100644
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c
@@ -11,3 +20,6 @@ index 421eb4592b61..6f4fc0bc4df5 100644
  
  	.width_mm	= 63,
  	.height_mm	= 84,
+-- 
+2.43.1
+

@@ -1,32 +1,38 @@
 #!/bin/sh
 
 case "$1" in
-	start)
-		echo performance > /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
-		echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+    start)
+        echo performance > /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
+        echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
         brightnessctl -r
-		amixer -q sset 'Playback Path' SPK
-		alsactl restore
+        #amixer -q sset 'Playback Path' SPK
+        alsactl restore
+        jack_plugged=$(amixer -c 1 cget numid=1,iface=CARD | awk -F"=" 'NR == 3 {print $2;}')
+        if [[ "$jack_plugged" == "on" ]]; then
+            amixer -c 1 sset 'Internal Speakers' off
+        else
+            amixer -c 1 sset 'Internal Speakers' on
+        fi
 
-		mkdir -p /var/lib/iwd
-		cp /boot/iwd/* /var/lib/iwd/
+        mkdir -p /var/lib/iwd
+        cp /boot/iwd/* /var/lib/iwd/
 
-		mount \
+        mount \
             -o noatime /dev/mmcblk2 /userdata \
             || mount /dev/mmcblk2 /userdata \
             || mount -o noatime /dev/mmcblk2p1 /userdata \
-			|| mount /dev/mmcblk2p1 /userdata \
-			|| mount -o noatime /dev/mmcblk1p3 /userdata \
-			|| mount /dev/mmcblk1p3 /userdata
+            || mount /dev/mmcblk2p1 /userdata \
+            || mount -o noatime /dev/mmcblk1p3 /userdata \
+            || mount /dev/mmcblk1p3 /userdata
 
         (rmmod rtw88_8821cs; modprobe rtw88_8821cs) &
-		;;
-	stop)
+        ;;
+    stop)
         brightnessctl -s
-		alsactl store
-		;;
-	*)
-		echo "Usage: $0 {start|stop}"
-		exit 1
+        alsactl store
+        ;;
+    *)
+        echo "Usage: $0 {start|stop}"
+        exit 1
 esac

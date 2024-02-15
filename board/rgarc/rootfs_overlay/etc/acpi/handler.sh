@@ -11,7 +11,7 @@ case "$1" in
         if ! evtest --query $mode_dev EV_KEY BTN_MODE; then
             brightnessctl s 1%+ -n 1 -q
         elif ! evtest --query $joypad_dev EV_KEY BTN_SELECT; then
-	    iwctl device wlan0 set-property Powered on
+        iwctl device wlan0 set-property Powered on
         else
             amixer sset Master 1%+ -q
         fi
@@ -20,9 +20,19 @@ case "$1" in
         if ! evtest --query $mode_dev EV_KEY BTN_MODE; then
             brightnessctl s 1%- -n 1 -q
         elif ! evtest --query $joypad_dev EV_KEY BTN_SELECT; then
-	    iwctl device wlan0 set-property Powered off
+        iwctl device wlan0 set-property Powered off
         else
             amixer sset Master 1%- -q
         fi
         ;;
+    jack/headphone)
+        case "$3" in
+            plug)
+                amixer -c 1 sset 'Internal Speakers' off
+            ;;
+            unplug)
+                amixer -c 1 sset 'Internal Speakers' on
+            ;;
+        esac
+    ;;
 esac

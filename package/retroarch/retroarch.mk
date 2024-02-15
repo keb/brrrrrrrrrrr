@@ -6,7 +6,7 @@
 
 RETROARCH_VERSION = c1130b8775f6d316120baf3d9342f8cdd5d60439
 RETROARCH_SITE = $(call github,libretro,RetroArch,$(RETROARCH_VERSION))
-RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libglvnd libgles mesa3d
+RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libglvnd libgles mesa3d sdl2
 RETROARCH_LICENSE = GPL-3.0-or-later
 RETROARCH_LICENSE_FILES = COPYING
 RETROARCH_CONF_OPTS += \
@@ -16,7 +16,6 @@ RETROARCH_CONF_OPTS += \
 		--disable-bsv_movie \
 		--disable-builtinbearssl \
 		--disable-builtinflac \
-		--disable-builtinglslang \
 		--disable-builtinmbedtls \
 		--disable-builtinzlib \
 		--disable-cdrom \
@@ -26,7 +25,6 @@ RETROARCH_CONF_OPTS += \
 		--disable-dr_mp3 \
 		--disable-dsound \
 		--disable-ffmpeg \
-		--disable-glslang \
 		--disable-imageviewer \
 		--disable-jack \
 		--disable-kms \
@@ -36,21 +34,16 @@ RETROARCH_CONF_OPTS += \
 		--disable-networkgamepad \
 		--disable-nvda \
 		--disable-opengl1 \
-		--disable-opengl_core \
 		--disable-oss \
 		--disable-parport \
 		--disable-pulse \
 		--disable-qt \
 		--disable-rpiled \
 		--disable-sdl \
-		--disable-sdl2 \
 		--disable-sixel \
-		--disable-slang \
-		--disable-spirv_cross \
 		--disable-ssa \
 		--disable-systemd \
 		--disable-systemmbedtls \
-		--disable-tinyalsa \
 		--disable-video_filter \
 		--disable-videocore \
 		--disable-videoprocessor \
@@ -61,12 +54,18 @@ RETROARCH_CONF_OPTS += \
 		--disable-x11 \
 		--disable-xaudio \
 		--enable-alsa \
+		--enable-builtinglslang \
 		--enable-egl \
 		--enable-freetype \
 		--enable-opengl \
+		--enable-opengl_core \
 		--enable-opengles \
 		--enable-opengles3 \
 		--enable-opengles3_2 \
+		--enable-sdl2 \
+		--enable-slang \
+		--enable-spirv_cross \
+		--enable-tinyalsa \
 		--enable-udev \
 		--enable-wayland \
 		--enable-wifi \

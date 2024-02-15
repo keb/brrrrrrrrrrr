@@ -8,17 +8,25 @@ mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
-echo -n "b" > /dev/tty1
+function status() {
+    printf "\033[23;39H\033[36m%02X" $1 > /dev/tty1
+}
+
+printf "\033[2J\033[H\033[35m" > /dev/tty1
+cat /logo > /dev/tty1
+status 1
 
 #exec 1>/dev/tty1 2>&1
 
 while ! ls -l /dev/mmcblk1p1 > /dev/null; do
     sleep 1
 done
+status 2
 
 mkdir -p /boot /root_fs /overlay /mnt
 
 mount /dev/mmcblk1p1 /boot
+status 3
 
 mkdir -p /boot/update
 
@@ -27,13 +35,15 @@ for f in rootfs.erofs Image initrd.gz; do
         mv /boot/update/$f /boot/
     fi
 done
-echo -n "r" > /dev/tty1
+status 4
 
 mount -t erofs /boot/rootfs.erofs /root_fs \
     || (echo "Failed to mount rootfs" > /dev/tty1)
+status 5
 
 mount -o noatime /dev/mmcblk1p2 /overlay \
     || (echo "Failed to mount /dev/mmcblk1p2")
+status 6
 
 mkdir -p /overlay/overlay /overlay/work
 
@@ -46,19 +56,21 @@ if [ "$reset" -eq 10 ]; then
     mv /overlay/userdata /overlay/overlay/userdata
     #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
     #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
-    echo -n " [ RESET ] " > /dev/tty1
+    printf "\033[23;36H\033[31m[ RESET ]" > /dev/tty1
+    sleep 2
+    printf "\033[23;36H\033[36m         " > /dev/tty1
 fi
 
-echo -n "r" > /dev/tty1
+status 7
 mount -t overlay root_overlay -o lowerdir=/root_fs,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
+status 8
 
 mount --move /boot /mnt/boot
 mount --move /proc /mnt/proc
 mount --move /sys /mnt/sys
 mount --move /dev /mnt/dev
 
-echo -n "r" > /mnt/dev/tty1
-clear > /mnt/dev/tty1
+printf "\033[23;36H\033[36m         " > /mnt/dev/tty1
 
 exec switch_root /mnt /sbin/init
 

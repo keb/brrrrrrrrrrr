@@ -39,6 +39,7 @@ install -D -m 775 ${TARGET_DIR}/lib/ld-linux-aarch64.so.1 ${temp_dir}/lib/ld-lin
 install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib/libresolv.so.2
 install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib64/libresolv.so.2
 install -D -m 775 ${TARGET_DIR}/lib/libc.so.6 ${temp_dir}/lib64/libc.so.6
+install -D -m 775 ${BOARD_DIR}/brrr_logo ${temp_dir}/logo
 mkdir -p ${temp_dir}/sbin
 ln -sf ../bin/busybox ${temp_dir}/sbin/switch_root
 apps=('[' '[[' ash cat clear cp dmesg echo ls mkdir mount mv rm sleep test umount)

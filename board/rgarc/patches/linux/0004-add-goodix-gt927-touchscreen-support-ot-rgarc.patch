@@ -1,7 +1,7 @@
 From d364f5037a377eae1a734b5223a42718a0d0f2d2 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Tue, 30 Jan 2024 23:02:11 -0500
-Subject: [PATCH 4/7] add goodix,gt927 touchscreen support ot rgarc
+Subject: [PATCH] add goodix,gt927 touchscreen support ot rgarc
 
 ---
  .../dts/rockchip/rk3566-anbernic-rg-arc-d.dts | 31 ++++++++-----------

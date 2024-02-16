@@ -1,7 +1,7 @@
 From 086b72bd98c72d84e0ac7e35344c153f9f1fa6b8 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Wed, 7 Feb 2024 15:10:43 -0500
-Subject: [PATCH 7/7] st7701 (rgarc) fix panel alignment
+Subject: [PATCH] st7701 (rgarc) fix panel alignment
 
 ---
  drivers/gpu/drm/panel/panel-sitronix-st7701.c | 2 +-

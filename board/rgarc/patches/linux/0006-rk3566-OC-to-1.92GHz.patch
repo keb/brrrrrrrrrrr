@@ -1,7 +1,7 @@
 From 5ef994189c965905e63265bc1f018b047bb0d5b7 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Sun, 4 Feb 2024 00:36:03 -0500
-Subject: [PATCH 6/7] rk3566 OC to 1.92GHz
+Subject: [PATCH] rk3566 OC to 1.92GHz
 
 ---
  arch/arm64/boot/dts/rockchip/rk356x.dtsi | 5 +++++

@@ -1,7 +1,7 @@
 From 9f2828e4bcd78bb6b4e4f5b4bfad40a06459fd9f Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Tue, 30 Jan 2024 20:24:48 -0500
-Subject: [PATCH 3/7] MM base config for touchscreen for rgarc-d
+Subject: [PATCH] MM base config for touchscreen for rgarc-d
 
 ---
  .../dts/rockchip/rk3566-anbernic-rg-arc-d.dts | 27 +++++++++++++++++++

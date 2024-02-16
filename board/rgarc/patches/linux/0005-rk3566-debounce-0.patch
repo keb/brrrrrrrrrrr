@@ -1,7 +1,7 @@
 From 14c435ca913ea5db77f492d2c5d73d06121bece0 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Sat, 3 Feb 2024 09:01:56 -0500
-Subject: [PATCH 5/7] rk3566 debounce 0
+Subject: [PATCH] rk3566 debounce 0
 
 ---
  .../boot/dts/rockchip/rk3566-anbernic-rg-arc.dtsi      | 10 ++++++++++

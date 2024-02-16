@@ -8,42 +8,54 @@ mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
-function status() {
-    printf "\033[23;39H\033[36m%02X" $1 > /dev/tty1
+function logo() {
+    printf "\033[2J\033[H\033[35m" > /dev/tty1
+    cat /logo > /dev/tty1
 }
 
-printf "\033[2J\033[H\033[35m" > /dev/tty1
-cat /logo > /dev/tty1
-status 1
+function status() {
+    printf "\n\033[30G\033[95m* \033[37m%s" "$1" > /dev/tty1
+}
 
 #exec 1>/dev/tty1 2>&1
 
+logo
+
+status "Waiting for mmcblk1p1"
 while ! ls -l /dev/mmcblk1p1 > /dev/null; do
     sleep 1
 done
-status 2
 
 mkdir -p /boot /root_fs /overlay /mnt
 
+if [ ! -e /dev/mmcblk1p2 ]; then
+    status "Creating overlay"
+    echo -en "x\ne\nm\nn\n\n\n+1G\n8300\nw\ny\n" | /usr/sbin/gdisk /dev/mmcblk1
+    status "Partition probing"
+    /usr/sbin/partprobe /dev/mmcblk1
+    status "Formatting overlay"
+    /sbin/mkfs.ext2 -L overlay /dev/mmcblk1p2
+fi
+
+status "Mounting boot"
 mount /dev/mmcblk1p1 /boot
-status 3
 
 mkdir -p /boot/update
 
 for f in rootfs.erofs Image initrd.gz; do
     if [ -f /boot/update/$f ]; then
+        status "Moving $f"
         mv /boot/update/$f /boot/
     fi
 done
-status 4
 
+status "Mounting erofs"
 mount -t erofs /boot/rootfs.erofs /root_fs \
     || (echo "Failed to mount rootfs" > /dev/tty1)
-status 5
 
+status "Mounting overlay"
 mount -o noatime /dev/mmcblk1p2 /overlay \
     || (echo "Failed to mount /dev/mmcblk1p2")
-status 6
 
 mkdir -p /overlay/overlay /overlay/work
 
@@ -51,26 +63,23 @@ evtest --query /dev/input/event5 EV_KEY BTN_TL
 reset=$?
 
 if [ "$reset" -eq 10 ]; then
+    status "RESET"
     mv /overlay/overlay/userdata /overlay/userdata
     rm -rf /overlay/overlay/*
     mv /overlay/userdata /overlay/overlay/userdata
     #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
     #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
-    printf "\033[23;36H\033[31m[ RESET ]" > /dev/tty1
-    sleep 2
-    printf "\033[23;36H\033[36m         " > /dev/tty1
+    sleep 3
 fi
 
-status 7
+status "Mouting overlay to mnt"
 mount -t overlay root_overlay -o lowerdir=/root_fs,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
-status 8
 
+logo
 mount --move /boot /mnt/boot
 mount --move /proc /mnt/proc
 mount --move /sys /mnt/sys
 mount --move /dev /mnt/dev
-
-printf "\033[23;36H\033[36m         " > /mnt/dev/tty1
 
 exec switch_root /mnt /sbin/init
 

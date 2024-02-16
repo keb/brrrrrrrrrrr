@@ -34,14 +34,30 @@ ${BOARD_DIR}/post-build-personal.sh || true
 temp_dir=$(mktemp -d)
 install -D -m 775 ${BOARD_DIR}/init ${temp_dir}/
 install -D -m 775 ${TARGET_DIR}/bin/busybox ${temp_dir}/bin/busybox
-install -D -m 775 ${TARGET_DIR}/usr/bin/evtest ${temp_dir}/bin/evtest
-install -D -m 775 ${TARGET_DIR}/lib/ld-linux-aarch64.so.1 ${temp_dir}/lib/ld-linux-aarch64.so.1
-install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib/libresolv.so.2
+install -D -m 775 ${TARGET_DIR}/usr/bin/evtest ${temp_dir}/usr/bin/evtest
+install -D -m 775 ${TARGET_DIR}/usr/sbin/gdisk ${temp_dir}/usr/sbin/gdisk
+install -D -m 775 ${TARGET_DIR}/usr/sbin/partprobe ${temp_dir}/usr/sbin/partprobe
+
+for lib in ld-linux-aarch64.so.1 libuuid.so.1 libresolv.so.2 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 libblkid.so.1; do
+    install -D -m 775 ${TARGET_DIR}/lib/${lib} ${temp_dir}/lib/${lib}
+done
+for lib in ld-linux-aarch64.so.1 libuuid.so.1 libresolv.so.2 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 libblkid.so.1; do
+    install -D -m 775 ${TARGET_DIR}/lib/${lib} ${temp_dir}/lib64/${lib}
+done
 install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib64/libresolv.so.2
 install -D -m 775 ${TARGET_DIR}/lib/libc.so.6 ${temp_dir}/lib64/libc.so.6
+install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib/libresolv.so.2
+install -D -m 775 ${TARGET_DIR}/lib/libc.so.6 ${temp_dir}/lib/libc.so.6
+install -D -m 775 ${TARGET_DIR}/usr/lib/libreadline.so.8 ${temp_dir}/lib/libreadline.so.8
+install -D -m 775 ${TARGET_DIR}/usr/lib/libncurses.so.6 ${temp_dir}/lib/libncurses.so.6
+install -D -m 775 ${TARGET_DIR}/usr/lib/libreadline.so.8 ${temp_dir}/usr/lib/libreadline.so.8
+install -D -m 775 ${TARGET_DIR}/usr/lib/libncurses.so.6 ${temp_dir}/usr/lib/libncurses.so.6
+
 install -D -m 775 ${BOARD_DIR}/brrr_logo ${temp_dir}/logo
-mkdir -p ${temp_dir}/sbin
+mkdir -p ${temp_dir}/sbin/
 ln -sf ../bin/busybox ${temp_dir}/sbin/switch_root
+ln -sf ../bin/busybox ${temp_dir}/sbin/mkfs.ext2
+
 apps=('[' '[[' ash cat clear cp dmesg echo ls mkdir mount mv rm sleep test umount)
 for app in "${apps[@]}"; do
     ln -sf busybox ${temp_dir}/bin/$app

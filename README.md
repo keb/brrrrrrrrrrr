@@ -2,7 +2,7 @@
 
 ## Features
 
-- Linux 6.8-rc3
+- Linux 6.8-rc4
 - bcachefs support w/ zstd compression
 - Recent RetroArch
 - Sway
@@ -35,11 +35,6 @@ Note that building the image can take anywhere from minutes to hours, depending 
 amount of CPUs/cores available. There are no notable hard disk space requirements.
 
 ## Usage
-
-### NOTE: rg-arc-s
-
-If you have the -s variant, then uncomment it in `/boot/extlinux/extlinux.conf`
-and comment the other one.
 
 ### Networking
 

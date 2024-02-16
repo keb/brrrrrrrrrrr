@@ -38,6 +38,8 @@ install -D -m 775 ${TARGET_DIR}/usr/bin/evtest ${temp_dir}/usr/bin/evtest
 install -D -m 775 ${TARGET_DIR}/usr/sbin/gdisk ${temp_dir}/usr/sbin/gdisk
 install -D -m 775 ${TARGET_DIR}/usr/sbin/partprobe ${temp_dir}/usr/sbin/partprobe
 
+mkdir -p ${temp_dir}/lib && cp -rv ${BOARD_DIR}/rootfs_overlay/lib/firmware ${temp_dir}/lib/
+
 for lib in ld-linux-aarch64.so.1 libuuid.so.1 libresolv.so.2 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 libblkid.so.1; do
     install -D -m 775 ${TARGET_DIR}/lib/${lib} ${temp_dir}/lib/${lib}
 done

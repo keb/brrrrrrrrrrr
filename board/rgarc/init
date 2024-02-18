@@ -40,14 +40,19 @@ fi
 status "Mounting boot"
 mount /dev/mmcblk1p1 /boot
 
-mkdir -p /boot/update
+evtest --query /dev/input/event5 EV_KEY BTN_TR
+noupdate=$?
 
-for f in rootfs.erofs Image initrd.gz; do
-    if [ -f /boot/update/$f ]; then
-        status "Moving $f"
-        mv /boot/update/$f /boot/
-    fi
-done
+if [ "$noupdate" -ne 10 ]; then
+    mkdir -p /boot/update
+
+    for f in rootfs.erofs Image initrd.gz; do
+        if [ -f /boot/update/$f ]; then
+            status "Moving $f"
+            mv /boot/update/$f /boot/
+        fi
+    done
+fi
 
 status "Mounting erofs"
 mount -t erofs /boot/rootfs.erofs /root_fs \

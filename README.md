@@ -65,6 +65,7 @@ pressing ctrl+alt+f2, and switch back to retroarch by alt-f1. The same login/pas
 ### On boot
 
 - Hold L1:            Factory reset all settings. RESET will be printed.
+- Hold R1:            Skip update (see below).
 
 ### Global
 
@@ -89,8 +90,9 @@ Check/customize settings
 
 ### Updating
 
-- Copy `rootfs.squashfs` (and/or `initrd.gz`, `Image`) to `/boot/update/`
+- Copy `rootfs.erofs` (and/or `initrd.gz`, `Image`) to `/boot/update/`
 - On next reboot, these files will overwrite the existing files on the device
+- Updating can be skipped by holding R1 on boot, e.g., on partial uploads to `boot/update/`
 
 ## FAQ
 
@@ -103,5 +105,5 @@ A1: Make changes to this tree and rebuild.
 - Macromorgan
 - JELOS team
 - Johnny On Flame
-- murf
+- wuaalb
 - Trooper\_Max

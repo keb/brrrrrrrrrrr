@@ -59,8 +59,9 @@ install -D -m 775 ${BOARD_DIR}/brrr_logo ${temp_dir}/logo
 mkdir -p ${temp_dir}/sbin/
 ln -sf ../bin/busybox ${temp_dir}/sbin/switch_root
 ln -sf ../bin/busybox ${temp_dir}/sbin/mkfs.ext2
+ln -sf ../bin/busybox ${temp_dir}/sbin/halt
 
-apps=('[' '[[' ash cat clear cp dmesg echo ls mkdir mount mv rm sleep test umount)
+apps=('[' '[[' ash cat clear cp dmesg echo ls mkdir mount mv rm sleep test umount md5sum)
 for app in "${apps[@]}"; do
     ln -sf busybox ${temp_dir}/bin/$app
 done

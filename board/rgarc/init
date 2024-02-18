@@ -9,12 +9,12 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
 function logo() {
-    printf "\033[2J\033[H\033[35m" > /dev/tty1
+    echo -en "\e[2J\e[H\e[35m" > /dev/tty1
     cat /logo > /dev/tty1
 }
 
 function status() {
-    printf "\n\033[30G\033[95m* \033[37m%s" "$1" > /dev/tty1
+    echo -en "\n\e[30G\e[95m* \e[37m$1" > /dev/tty1
 }
 
 #exec 1>/dev/tty1 2>&1
@@ -40,12 +40,22 @@ fi
 status "Mounting boot"
 mount /dev/mmcblk1p1 /boot
 
-evtest --query /dev/input/event5 EV_KEY BTN_TR
-noupdate=$?
+mkdir -p /boot/update
 
-if [ "$noupdate" -ne 10 ]; then
-    mkdir -p /boot/update
+checksum_ok=1
+if [ -e /boot/update/sums ]; then
+    status "Verifying update checksums"
+    if ! (cd /boot/update && md5sum -c sums); then
+        status "\e[31mChecksum mismatch. Skipping update.\e[0m"
+        checksum_ok=0
+        md5sum -c sums > /dev/tty1
+        sleep 5
+    else
+        rm /boot/update/sums
+    fi
+fi
 
+if [ "$checksum_ok" -eq 1 ]; then
     for f in rootfs.erofs Image initrd.gz; do
         if [ -f /boot/update/$f ]; then
             status "Moving $f"
@@ -68,7 +78,7 @@ evtest --query /dev/input/event5 EV_KEY BTN_TL
 reset=$?
 
 if [ "$reset" -eq 10 ]; then
-    status "RESET"
+    status "\e[31m<<< RESET >>>\e[0m"
     mv /overlay/overlay/userdata /overlay/userdata
     rm -rf /overlay/overlay/*
     mv /overlay/userdata /overlay/overlay/userdata

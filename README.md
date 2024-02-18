@@ -90,9 +90,8 @@ Check/customize settings
 
 ### Updating
 
-- Copy `rootfs.erofs` (and/or `initrd.gz`, `Image`) to `/boot/update/`
+- Copy `rootfs.erofs`, `initrd.gz`, `Image`, `sums` to `/boot/update/`.
 - On next reboot, these files will overwrite the existing files on the device
-- Updating can be skipped by holding R1 on boot, e.g., on partial uploads to `boot/update/`
 
 ## FAQ
 

@@ -1,4 +1,4 @@
-picodrive_aspect = "PAR"
+picodrive_aspect = "4/3"
 picodrive_audio_filter = "disabled"
 picodrive_dacnoise = "off"
 picodrive_drc = "enabled"

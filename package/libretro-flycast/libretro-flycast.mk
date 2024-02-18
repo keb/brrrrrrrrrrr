@@ -1,0 +1,32 @@
+################################################################################
+#
+# libretro-flycast
+#
+################################################################################
+
+LIBRETRO_FLYCAST_VERSION = 44fa364f36c43bed19b055096600f075c656f78c
+LIBRETRO_FLYCAST_SITE = https://github.com/flyinghead/flycast.git
+LIBRETRO_FLYCAST_SITE_METHOD=git
+LIBRETRO_FLYCAST_DEPENDENCIES = libzlib mesa3d libglvnd
+LIBRETRO_FLYCAST_GIT_SUBMODULES=YES
+LIBRETRO_FLYCAST_LICENSE = GPLv2
+
+LIBRETRO_FLYCAST_CONF_OPTS += -DCMAKE_BUILD_TYPE=Release
+LIBRETRO_FLYCAST_CONF_OPTS += -DBUILD_SHARED_LIBS=OFF 
+LIBRETRO_FLYCAST_CONF_OPTS += -DLIBRETRO=ON
+LIBRETRO_FLYCAST_CONF_OPTS += -DUSE_OPENMP=ON
+LIBRETRO_FLYCAST_CONF_OPTS += -DUSE_OPENGL=ON
+LIBRETRO_FLYCAST_CONF_OPTS += -DBUILD_EXTERNAL=OFF
+#LIBRETRO_FLYCAST_CONF_OPTS += -DCMAKE_VERBOSE_MAKEFILE=1
+LIBRETRO_FLYCAST_CONF_OPTS += -DUSE_GLES=ON
+
+# lto breaks flycast
+LIBRETRO_FLYCAST_CONF_OPTS += -DCMAKE_C_FLAGS="$(TARGET_CFLAGS) -fno-lto"
+LIBRETRO_FLYCAST_CONF_OPTS += -DCMAKE_CXX_FLAGS="$(TARGET_CXXFLAGS) -fno-lto"
+
+define LIBRETRO_FLYCAST_INSTALL_TARGET_CMDS
+	$(INSTALL) -D $(@D)/flycast_libretro.so \
+		$(TARGET_DIR)/usr/lib/libretro/flycast_libretro.so
+endef
+
+$(eval $(cmake-package))

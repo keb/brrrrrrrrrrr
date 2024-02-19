@@ -32,28 +32,17 @@ ${BOARD_DIR}/post-build-personal.sh || true
 
 # initrd
 temp_dir=$(mktemp -d)
-install -D -m 775 ${BOARD_DIR}/init ${temp_dir}/
-install -D -m 775 ${TARGET_DIR}/bin/busybox ${temp_dir}/bin/busybox
-install -D -m 775 ${TARGET_DIR}/usr/bin/evtest ${temp_dir}/usr/bin/evtest
-install -D -m 775 ${TARGET_DIR}/usr/sbin/gdisk ${temp_dir}/usr/sbin/gdisk
-install -D -m 775 ${TARGET_DIR}/usr/sbin/partprobe ${temp_dir}/usr/sbin/partprobe
+
+install -D -m 775 ${BOARD_DIR}/init ${temp_dir}/init
+for bin in bin/busybox usr/bin/evtest usr/sbin/gdisk usr/sbin/partprobe; do
+    install -D -m 775 ${TARGET_DIR}/${bin} ${temp_dir}/${bin}
+done
+
+for lib in lib/ld-linux-aarch64.so.1 lib64/libresolv.so.2 usr/lib64/libparted.so.2 lib64/libblkid.so.1 lib64/libuuid.so.1 usr/lib64/libreadline.so.8 usr/lib64/libncurses.so.6 lib64/libc.so.6 lib64/libstdc++.so.6 lib64/libm.so.6 lib64/libgcc_s.so.1; do
+    install -D -m 775 ${TARGET_DIR}/${lib} ${temp_dir}/${lib}
+done
 
 mkdir -p ${temp_dir}/lib && cp -rv ${BOARD_DIR}/rootfs_overlay/lib/firmware ${temp_dir}/lib/
-
-for lib in ld-linux-aarch64.so.1 libuuid.so.1 libresolv.so.2 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 libblkid.so.1; do
-    install -D -m 775 ${TARGET_DIR}/lib/${lib} ${temp_dir}/lib/${lib}
-done
-for lib in ld-linux-aarch64.so.1 libuuid.so.1 libresolv.so.2 libstdc++.so.6 libm.so.6 libgcc_s.so.1 libc.so.6 libblkid.so.1; do
-    install -D -m 775 ${TARGET_DIR}/lib/${lib} ${temp_dir}/lib64/${lib}
-done
-install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib64/libresolv.so.2
-install -D -m 775 ${TARGET_DIR}/lib/libc.so.6 ${temp_dir}/lib64/libc.so.6
-install -D -m 775 ${TARGET_DIR}/lib/libresolv.so.2 ${temp_dir}/lib/libresolv.so.2
-install -D -m 775 ${TARGET_DIR}/lib/libc.so.6 ${temp_dir}/lib/libc.so.6
-install -D -m 775 ${TARGET_DIR}/usr/lib/libreadline.so.8 ${temp_dir}/lib/libreadline.so.8
-install -D -m 775 ${TARGET_DIR}/usr/lib/libncurses.so.6 ${temp_dir}/lib/libncurses.so.6
-install -D -m 775 ${TARGET_DIR}/usr/lib/libreadline.so.8 ${temp_dir}/usr/lib/libreadline.so.8
-install -D -m 775 ${TARGET_DIR}/usr/lib/libncurses.so.6 ${temp_dir}/usr/lib/libncurses.so.6
 
 install -D -m 775 ${BOARD_DIR}/brrr_logo ${temp_dir}/logo
 mkdir -p ${temp_dir}/sbin/

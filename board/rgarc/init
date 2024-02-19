@@ -23,7 +23,7 @@ logo
 
 status "Waiting for mmcblk1p1"
 while ! ls -l /dev/mmcblk1p1 > /dev/null; do
-    sleep 1
+    usleep 1000
 done
 
 mkdir -p /boot /root_fs /overlay /mnt

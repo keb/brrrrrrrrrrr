@@ -1,4 +1,4 @@
-From 14c435ca913ea5db77f492d2c5d73d06121bece0 Mon Sep 17 00:00:00 2001
+From b2b33a56a18b5a2c153cbf7f7bf674ceed3f7a98 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Sat, 3 Feb 2024 09:01:56 -0500
 Subject: [PATCH] rk3566 debounce 0
@@ -145,5 +145,5 @@ index 18b8c2e7befa..abf7dea167c2 100644
  	};
  
 -- 
-2.43.1
+2.43.2
 

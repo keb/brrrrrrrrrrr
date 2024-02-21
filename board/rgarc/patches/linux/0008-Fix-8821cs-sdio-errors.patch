@@ -1,4 +1,4 @@
-From a0e01b2bb51a032af5e95e4acd9081f33afd9884 Mon Sep 17 00:00:00 2001
+From 8845ec6132f2c83d8182bde372489af616dd2bab Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Fri, 16 Feb 2024 13:00:59 -0500
 Subject: [PATCH] Fix 8821cs sdio errors
@@ -22,5 +22,5 @@ index abf7dea167c2..5cd11e962c81 100644
  };
  
 -- 
-2.43.1
+2.43.2
 

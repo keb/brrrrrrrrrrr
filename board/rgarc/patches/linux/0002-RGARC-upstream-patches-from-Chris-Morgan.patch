@@ -1,4 +1,4 @@
-From f4e5e6a6a5ee6c44d83f49431eccb152b9f37744 Mon Sep 17 00:00:00 2001
+From 15b6a6537db3249dabf908555ae2ea6e4014ff48 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Sun, 28 Jan 2024 13:58:17 -0500
 Subject: [PATCH] RGARC upstream patches from Chris Morgan
@@ -705,5 +705,5 @@ index b786ddc9af2a..8cb21d10beca 100644
  	RK3036_PLL_RATE(119000000, 3, 119, 4, 2, 1, 0),
  	RK3036_PLL_RATE(115200000, 1, 24, 5, 1, 1, 0),
 -- 
-2.43.1
+2.43.2
 

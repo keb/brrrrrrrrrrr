@@ -1,4 +1,4 @@
-From d364f5037a377eae1a734b5223a42718a0d0f2d2 Mon Sep 17 00:00:00 2001
+From 319e193a9145302d075c7b18708fd4ae885fb9ec Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Tue, 30 Jan 2024 23:02:11 -0500
 Subject: [PATCH] add goodix,gt927 touchscreen support ot rgarc
@@ -58,5 +58,5 @@ index f6e70e2467a7..40f67933cb2f 100644
  };
  
 -- 
-2.43.1
+2.43.2
 

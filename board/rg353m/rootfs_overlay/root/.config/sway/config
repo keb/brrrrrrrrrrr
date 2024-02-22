@@ -1,0 +1,4 @@
+output DSI-1 bg #000000 solid_color
+default_border none
+output DSI-1 max_render_time off
+exec retroarch.sh

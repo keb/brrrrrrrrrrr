@@ -1,0 +1,100 @@
+#!/bin/ash
+
+#set -euo pipefail
+
+mkdir -p /proc /sys
+
+mount -t devtmpfs none /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+
+function logo() {
+    echo -en "\e[2J\e[H\e[35m" > /dev/tty1
+    cat /logo > /dev/tty1
+}
+
+function status() {
+    echo -en "\n\e[30G\e[95m* \e[37m$1" > /dev/tty1
+}
+
+#exec 1>/dev/tty1 2>&1
+
+logo
+
+status "Waiting for mmcblk1p1"
+while ! ls -l /dev/mmcblk1p1 > /dev/null; do
+    usleep 1000
+done
+
+mkdir -p /boot /root_fs /overlay /mnt
+
+if [ ! -e /dev/mmcblk1p2 ]; then
+    status "Creating overlay"
+    echo -en "x\ne\nm\nn\n\n\n+1G\n8300\nw\ny\n" | /usr/sbin/gdisk /dev/mmcblk1
+    status "Partition probing"
+    /usr/sbin/partprobe /dev/mmcblk1
+    status "Formatting overlay"
+    /sbin/mkfs.ext2 -L overlay /dev/mmcblk1p2
+fi
+
+status "Mounting boot"
+mount /dev/mmcblk1p1 /boot
+
+mkdir -p /boot/update
+
+checksum_ok=1
+if [ -e /boot/update/sums ]; then
+    status "Verifying update checksums"
+    if ! (cd /boot/update && md5sum -c sums); then
+        status "\e[31mChecksum mismatch. Skipping update.\e[0m"
+        checksum_ok=0
+        md5sum -c sums > /dev/tty1
+        sleep 5
+    else
+        rm /boot/update/sums
+    fi
+fi
+
+if [ "$checksum_ok" -eq 1 ]; then
+    for f in rootfs.erofs Image initrd.gz; do
+        if [ -f /boot/update/$f ]; then
+            status "Moving $f"
+            mv /boot/update/$f /boot/
+        fi
+    done
+fi
+
+status "Mounting erofs"
+mount -t erofs /boot/rootfs.erofs /root_fs \
+    || (echo "Failed to mount rootfs" > /dev/tty1)
+
+status "Mounting overlay"
+mount -o noatime /dev/mmcblk1p2 /overlay \
+    || (echo "Failed to mount /dev/mmcblk1p2")
+
+mkdir -p /overlay/overlay /overlay/work
+
+evtest --query /dev/input/event5 EV_KEY BTN_TL
+reset=$?
+
+if [ "$reset" -eq 10 ]; then
+    status "\e[31m<<< RESET >>>\e[0m"
+    mv /overlay/overlay/userdata /overlay/userdata
+    rm -rf /overlay/overlay/*
+    mv /overlay/userdata /overlay/overlay/userdata
+    #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
+    #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
+    sleep 3
+fi
+
+status "Mouting overlay to mnt"
+mount -t overlay root_overlay -o lowerdir=/root_fs,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
+
+logo
+mount --move /boot /mnt/boot
+mount --move /proc /mnt/proc
+mount --move /sys /mnt/sys
+mount --move /dev /mnt/dev
+
+exec switch_root /mnt /sbin/init
+

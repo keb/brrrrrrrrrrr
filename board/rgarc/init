@@ -74,10 +74,14 @@ mount -o noatime /dev/mmcblk1p2 /overlay \
 
 mkdir -p /overlay/overlay /overlay/work
 
-evtest --query /dev/input/event5 EV_KEY BTN_TL
+evtest --query /dev/input/event4 EV_KEY BTN_TL # -s
 reset=$?
+if [ $reset -neq 10 ]; then
+    evtest --query /dev/input/event5 EV_KEY BTN_TL # -d
+    reset=$?
+fi
 
-if [ "$reset" -eq 10 ]; then
+if [ $reset -eq 10 ]; then
     status "\e[31m<<< RESET >>>\e[0m"
     mv /overlay/overlay/userdata /overlay/userdata
     rm -rf /overlay/overlay/*

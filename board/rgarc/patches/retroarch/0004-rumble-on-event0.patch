@@ -1,0 +1,175 @@
+diff --git a/input/drivers_joypad/udev_joypad.c b/input/drivers_joypad/udev_joypad.c
+index ff4b55dcf0..482a749643 100644
+--- a/input/drivers_joypad/udev_joypad.c
++++ b/input/drivers_joypad/udev_joypad.c
+@@ -70,8 +70,10 @@ struct udev_joypad
+    uint64_t buttons;
+ 
+    char *path;
++   char *path_rumble;
+ 
+    int fd;
++   int fd_rumble; /* Added: rg-arc uses separate joypad (gpio-keys-control) and rumble (pwm-vibrator) devices */
+    int num_effects;
+    int effects[2]; /* [0] - strong, [1] - weak  */
+    int32_t vid;
+@@ -157,7 +159,7 @@ static bool udev_set_rumble_gain(unsigned i, unsigned gain)
+    struct udev_joypad *pad = (struct udev_joypad*)&udev_pads[i];
+ 
+    /* Does not support > 100 gains */
+-   if ((pad->fd < 0) ||
++   if ((pad->fd_rumble < 0) ||
+        (gain > 100))
+       return false;
+ 
+@@ -169,7 +171,7 @@ static bool udev_set_rumble_gain(unsigned i, unsigned gain)
+    ie.code = FF_GAIN;
+    ie.value = 0xFFFF * (gain/100.0);
+ 
+-   if (write(pad->fd, &ie, sizeof(ie)) < (ssize_t)sizeof(ie))
++   if (write(pad->fd_rumble, &ie, sizeof(ie)) < (ssize_t)sizeof(ie))
+    {
+       RARCH_ERR("[udev]: Failed to set rumble gain on pad #%u.\n", i);
+       return false;
+@@ -181,7 +183,7 @@ static bool udev_set_rumble_gain(unsigned i, unsigned gain)
+ }
+ #endif
+ 
+-static int udev_add_pad(struct udev_device *dev, unsigned p, int fd, const char *path)
++static int udev_add_pad(struct udev_device *dev, unsigned p, int fd, const char *path, int fd_rumble, const char *path_rumble)
+ {
+    int i;
+    struct stat st;
+@@ -273,6 +275,8 @@ static int udev_add_pad(struct udev_device *dev, unsigned p, int fd, const char
+    pad->device = st.st_rdev;
+    pad->fd     = fd;
+    pad->path   = strdup(path);
++   pad->fd_rumble   = fd_rumble;
++   pad->path_rumble = strdup(path_rumble);
+ 
+    if (!string_is_empty(pad->ident))
+    {
+@@ -288,16 +292,16 @@ static int udev_add_pad(struct udev_device *dev, unsigned p, int fd, const char
+    }
+ 
+    /* Check for rumble features. */
+-   if (ioctl(fd, EVIOCGBIT(EV_FF, sizeof(ffbit)), ffbit) >= 0)
++   if (ioctl(fd_rumble, EVIOCGBIT(EV_FF, sizeof(ffbit)), ffbit) >= 0)
+    {
+       if (test_bit(FF_RUMBLE, ffbit))
+-         RARCH_LOG("[udev]: Pad #%u (%s) supports force feedback.\n",
+-               p, path);
++         RARCH_LOG("[udev]: Pad #%u (%s) (%s) supports force feedback.\n",
++               p, path, path_rumble);
+ 
+-      if (ioctl(fd, EVIOCGEFFECTS, &pad->num_effects) >= 0)
++      if (ioctl(fd_rumble, EVIOCGEFFECTS, &pad->num_effects) >= 0)
+          RARCH_LOG(
+-               "[udev]: Pad #%u (%s) supports %d force feedback effects.\n",
+-               p, path, pad->num_effects);
++               "[udev]: Pad #%u (%s) (%s) supports %d force feedback effects.\n",
++               p, path, path_rumble, pad->num_effects);
+    }
+ 
+ #ifndef HAVE_LAKKA_SWITCH
+@@ -317,9 +321,13 @@ static int udev_add_pad(struct udev_device *dev, unsigned p, int fd, const char
+ static void udev_check_device(struct udev_device *dev, const char *path)
+ {
+    int ret;
+-   int pad, fd;
++   int pad, fd, fd_rumble;
+    unsigned i;
+    struct stat st;
++   char device_name[256] = {'\0'};
++   char *name_rgarc_joypad = "gpio-keys-control";
++   char *path_rgarc_pwn_vibrator = "/dev/input/by-path/platform-pwm-vibrator-event";
++   char *path_rumble;
+ 
+    if (stat(path, &st) < 0)
+       return;
+@@ -341,21 +349,57 @@ static void udev_check_device(struct udev_device *dev, const char *path)
+    if ((fd = udev_open_joystick(path)) < 0)
+       return;
+ 
+-   if (udev_add_pad(dev, pad, fd, path) == -1)
++   /* map internal rg-arc joypad "gpio-keys-control" to rumble on "pwm-vibrator" */
++   if (ioctl(fd, EVIOCGNAME(sizeof(device_name)), device_name) < 0)
++   {
++      RARCH_ERR("[udev]: Failed to get device name for pad: %s.\n", path);
++      /* continue, device_name will be empty */
++   }
++
++   if (strcmp(device_name, name_rgarc_joypad) == 0)
++   {
++      /* case for rg-arc: controls and rumble on different devices */
++      path_rumble = path_rgarc_pwn_vibrator;
++      if ((fd_rumble = open(path_rumble, O_RDWR | O_NONBLOCK)) < 0)
++      {
++         RARCH_ERR("[udev]: Failed to open pwm vibrator: %s.\n", path_rumble);
++         /* fall back to default case: controls and rumble on same device */
++         path_rumble = path;
++         fd_rumble = fd;
++      }
++   }
++   else
++   {
++      /* default case: controls and rumble on same device */
++      path_rumble = path;
++      fd_rumble = fd;
++   }
++
++   if (udev_add_pad(dev, pad, fd, path, fd_rumble, path_rumble) == -1)
+    {
+       RARCH_ERR("[udev]: Failed to add pad: %s.\n", path);
++      if (fd != fd_rumble)
++         close(fd_rumble);
+       close(fd);
+    }
+ }
+ 
+ static void udev_free_pad(unsigned pad)
+ {
++   if (udev_pads[pad].fd_rumble >= 0 && udev_pads[pad].fd_rumble != udev_pads[pad].fd)
++      close(udev_pads[pad].fd_rumble);
++
++   if (udev_pads[pad].path_rumble && udev_pads[pad].path_rumble != udev_pads[pad].path)
++      free(udev_pads[pad].path_rumble);
++   udev_pads[pad].path_rumble = NULL;
++
+    if (udev_pads[pad].fd >= 0)
+       close(udev_pads[pad].fd);
+ 
+    if (udev_pads[pad].path)
+       free(udev_pads[pad].path);
+    udev_pads[pad].path = NULL;
++
+    if (!string_is_empty(udev_pads[pad].ident))
+       udev_pads[pad].ident[0] = '\0';
+ 
+@@ -403,7 +447,7 @@ static bool udev_set_rumble(unsigned i,
+    uint16_t old_strength;
+    struct udev_joypad *pad = (struct udev_joypad*)&udev_pads[i];
+ 
+-   if (pad->fd < 0)
++   if (pad->fd_rumble < 0)
+       return false;
+    if (pad->num_effects < 2)
+       return false;
+@@ -440,7 +484,7 @@ static bool udev_set_rumble(unsigned i,
+                return false;
+          }
+ 
+-         if (ioctl(pad->fd, EVIOCSFF, &e) < 0)
++         if (ioctl(pad->fd_rumble, EVIOCSFF, &e) < 0)
+          {
+             RARCH_ERR("Failed to set rumble effect on pad #%u.\n", i);
+             return false;
+@@ -461,7 +505,7 @@ static bool udev_set_rumble(unsigned i,
+          play.code  = pad->effects[effect];
+          play.value = !!strength;
+ 
+-         if (write(pad->fd, &play, sizeof(play)) < (ssize_t)sizeof(play))
++         if (write(pad->fd_rumble, &play, sizeof(play)) < (ssize_t)sizeof(play))
+          {
+             RARCH_ERR("[udev]: Failed to play rumble effect #%u on pad #%u.\n",
+                   effect, i);

@@ -2,11 +2,12 @@
 
 #set -euo pipefail
 
-mkdir -p /proc /sys
+mkdir -p /proc /sys /tmp
 
 mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
+mount -t tmpfs tmpfs /tmp
 
 function logo() {
     echo -en "\e[2J\e[H\e[35m" > /dev/tty1
@@ -19,14 +20,16 @@ function status() {
 
 #exec 1>/dev/tty1 2>&1
 
-logo
-
-status "Waiting for mmcblk1p1"
 while ! ls -l /dev/mmcblk1p1 > /dev/null; do
+    status "Waiting for mmcblk1p1"
     usleep 1000
 done
 
 mkdir -p /boot /root_fs /overlay /mnt
+
+gamepad_dev="/dev/input/$(basename $(echo /sys/devices/platform/gpio-keys-control/input/*/event*))"
+recovery_menu=0
+reset=0
 
 if [ ! -e /dev/mmcblk1p2 ]; then
     status "Creating overlay"
@@ -36,6 +39,24 @@ if [ ! -e /dev/mmcblk1p2 ]; then
     status "Formatting overlay"
     /sbin/mkfs.ext2 -L overlay /dev/mmcblk1p2
 fi
+
+evtest --query $gamepad_dev EV_KEY BTN_TL
+if [ $? -eq 10 ]; then
+    cmd=$(bialog --no-tags --menu "BRRR :: Recovery Menu" 0 0 0 boot "Boot" reset "Factory Reset" shell "Shell" 2>&1 > /dev/tty1); clear > /dev/tty1
+    case "$cmd" in
+        reset)
+            reset=1
+            ;;
+        shell)
+            /bin/ash
+            clear > /dev/tty1
+            ;;
+        *)
+            ;;
+    esac
+fi
+
+logo
 
 status "Mounting boot"
 mount /dev/mmcblk1p1 /boot
@@ -74,21 +95,14 @@ mount -o noatime /dev/mmcblk1p2 /overlay \
 
 mkdir -p /overlay/overlay /overlay/work
 
-evtest --query /dev/input/event4 EV_KEY BTN_TL # -s
-reset=$?
-if [ $reset -neq 10 ]; then
-    evtest --query /dev/input/event5 EV_KEY BTN_TL # -d
-    reset=$?
-fi
-
-if [ $reset -eq 10 ]; then
-    status "\e[31m<<< RESET >>>\e[0m"
+if [ $reset -eq 1 ]; then
     mv /overlay/overlay/userdata /overlay/userdata
     rm -rf /overlay/overlay/*
     mv /overlay/userdata /overlay/overlay/userdata
     #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
     #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
-    sleep 3
+    bialog --msgbox "Factory Reset Complete" 5 40 > /dev/tty1; clear > /dev/tty1
+    logo
 fi
 
 status "Mouting overlay to mnt"

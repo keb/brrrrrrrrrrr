@@ -64,7 +64,7 @@ pressing ctrl+alt+f2, and switch back to retroarch by alt-f1. The same login/pas
 
 ### On boot
 
-- Hold L1:            Factory reset all settings. RESET will be printed.
+Hold `L1` to enter Recovery Menu.
 
 ### Global
 

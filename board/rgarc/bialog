@@ -1,0 +1,30 @@
+#!/bin/ash
+
+#set -xv
+
+fifo=$(mktemp)
+rm -f $fifo
+mkfifo $fifo
+
+gamepad_dev="/dev/input/$(basename $(echo /sys/devices/platform/gpio-keys-control/input/*/event*))"
+
+ev_input() {
+	evsieve \
+		--input $gamepad_dev \
+		--hook btn:dpad_up	exec-shell="echo -ne '-'" 	\
+		--hook btn:dpad_down 	exec-shell="echo -ne '+'" 	\
+		--hook btn:dpad_left 	exec-shell="echo -ne '\e[Z'" 	\
+		--hook btn:dpad_right	exec-shell="echo -ne '\t'" 	\
+		--hook btn:tl		exec-shell="echo -ne '\e[1~'" 	\
+		--hook btn:tr		exec-shell="echo -ne '\e[4~'" 	\
+		--hook btn:south	exec-shell="echo" > $fifo & fifo_pid=$!
+	export fifo_pid
+}
+
+ev_input
+
+dialog "$@" --input-fd 3 3< $fifo & dialog_pid=$!
+
+wait $dialog_pid
+kill $fifo_pid
+rm -f $fifo

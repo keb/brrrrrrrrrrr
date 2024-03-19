@@ -2,7 +2,7 @@
 
 ## Features
 
-- Linux 6.8-rc5
+- Linux 6.8
 - bcachefs support w/ zstd compression
 - Recent RetroArch
 - Sway

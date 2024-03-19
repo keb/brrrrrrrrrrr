@@ -1,8 +1,68 @@
+diff --git a/package/mesa3d/mesa3d.mk b/package/mesa3d/mesa3d.mk
+index 8e3cd7245d..fa6b074941 100644
+--- a/package/mesa3d/mesa3d.mk
++++ b/package/mesa3d/mesa3d.mk
+@@ -92,11 +92,11 @@ MESA3D_CONF_OPTS += \
+ 	-Dgallium-xa=disabled
+ endif
+ 
+-ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
+-MESA3D_CONF_OPTS += -Dgallium-vc4-neon=auto
+-else
+-MESA3D_CONF_OPTS += -Dgallium-vc4-neon=disabled
+-endif
++#ifeq ($(BR2_ARM_CPU_HAS_NEON),y)
++#MESA3D_CONF_OPTS += -Dgallium-vc4-neon=auto
++#else
++#MESA3D_CONF_OPTS += -Dgallium-vc4-neon=disabled
++#endif
+ 
+ # Drivers
+ 
+diff --git a/package/ncurses/ncurses.mk b/package/ncurses/ncurses.mk
+index 00e1c0d424..4526d50997 100644
+--- a/package/ncurses/ncurses.mk
++++ b/package/ncurses/ncurses.mk
+@@ -18,6 +18,8 @@ NCURSES_CPE_ID_VENDOR = gnu
+ NCURSES_CPE_ID_VERSION = $(NCURSES_VERSION_MAJOR)$(if $(NCURSES_SNAPSHOT_DATE),.$(NCURSES_SNAPSHOT_DATE))
+ NCURSES_CONFIG_SCRIPTS = ncurses$(NCURSES_LIB_SUFFIX)6-config
+ 
++NCURSES_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-lto"
++
+ NCURSES_CONF_OPTS = \
+ 	--without-cxx \
+ 	--without-cxx-binding \
+diff --git a/package/readline/readline.mk b/package/readline/readline.mk
+index 66812dee77..43a413fb86 100644
+--- a/package/readline/readline.mk
++++ b/package/readline/readline.mk
+@@ -16,6 +16,8 @@ READLINE_LICENSE = GPL-3.0+
+ READLINE_LICENSE_FILES = COPYING
+ READLINE_CPE_ID_VENDOR = gnu
+ 
++READLINE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-lto"
++
+ ifeq ($(BR2_PACKAGE_READLINE_BRACKETED_PASTE),y)
+ READLINE_CONF_OPTS += --enable-bracketed-paste-default
+ else
+diff --git a/package/sdl2_image/sdl2_image.mk b/package/sdl2_image/sdl2_image.mk
+index 40b9e3c915..4978c589b3 100644
+--- a/package/sdl2_image/sdl2_image.mk
++++ b/package/sdl2_image/sdl2_image.mk
+@@ -13,6 +13,8 @@ SDL2_IMAGE_LICENSE_FILES = LICENSE.txt
+ SDL2_IMAGE_CPE_ID_VENDOR = libsdl
+ SDL2_IMAGE_CPE_ID_PRODUCT = sdl_image
+ 
++SDL2_IMAGE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-lto"
++
+ # Unconditionally enable support for image formats that don't require
+ # any dependency.
+ SDL2_IMAGE_CONF_OPTS = \
 diff --git a/package/sway/sway.mk b/package/sway/sway.mk
-index 19f90b8b00..73d2174930 100644
+index 0aad9de712..a96bc33072 100644
 --- a/package/sway/sway.mk
 +++ b/package/sway/sway.mk
-@@ -8,7 +8,7 @@ SWAY_VERSION = 1.8.1
+@@ -8,13 +8,12 @@ SWAY_VERSION = 1.8.1
  SWAY_SITE = https://github.com/swaywm/sway/releases/download/$(SWAY_VERSION)
  SWAY_LICENSE = MIT
  SWAY_LICENSE_FILES = LICENSE
@@ -10,11 +70,8 @@ index 19f90b8b00..73d2174930 100644
 +SWAY_DEPENDENCIES = host-pkgconf wlroots json-c pcre cairo pango
  SWAY_CONF_OPTS = \
  	-Dwerror=false \
- 	-Ddefault-wallpaper=false \
-@@ -18,8 +18,7 @@ SWAY_CONF_OPTS = \
- 	-Dswaybar=false \
- 	-Dswaynag=false \
- 	-Dtray=disabled \
+ 	-Dzsh-completions=false \
+ 	-Dfish-completions=false \
 -	-Dman-pages=disabled \
 -	-Dsd-bus-provider=libsystemd
 +	-Dman-pages=disabled
@@ -22,7 +79,7 @@ index 19f90b8b00..73d2174930 100644
  ifeq ($(BR2_PACKAGE_WLROOTS_X11),y)
  SWAY_CONF_OPTS += -Dxwayland=enabled
 diff --git a/package/wlroots/wlroots.mk b/package/wlroots/wlroots.mk
-index bb5c8f497d..20ed5d6b65 100644
+index fdd2fb8250..91005ab3fa 100644
 --- a/package/wlroots/wlroots.mk
 +++ b/package/wlroots/wlroots.mk
 @@ -14,6 +14,8 @@ WLROOTS_DEPENDENCIES = \

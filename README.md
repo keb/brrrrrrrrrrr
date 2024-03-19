@@ -19,7 +19,7 @@
 
 There are several ways to set up such prerequisites, e.g.,
 
-- Using an existing Linux distribution, cloning buildroot https://github.com/buildroot/buildroot to `buildroot` and checking out tag `2023.11.1`
+- Using an existing Linux distribution, cloning buildroot https://github.com/buildroot/buildroot to `buildroot` and checking out tag `2024.02`
 - Using a docker, see `Dockerfile`
 - Using a VM, see `Vagrantfile`
 

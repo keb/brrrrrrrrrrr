@@ -3,7 +3,7 @@
 
 FROM debian:latest
 
-ARG BR_VER=2023.11.1
+ARG BR_VER=2024.02
 ENV HOSTNAME brrrrrrrrrr
 
 RUN apt-get update && apt-get install -y \

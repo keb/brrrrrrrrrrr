@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-RETROARCH_VERSION = ad8975cb5a0fe45be43438bdbd6c3d745653dd02
+RETROARCH_VERSION = 8bb7173f97e1713b734e28f82821e288322bb04e
 RETROARCH_SITE = $(call github,libretro,RetroArch,$(RETROARCH_VERSION))
 RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libglvnd libgles mesa3d sdl2
 RETROARCH_LICENSE = GPL-3.0-or-later

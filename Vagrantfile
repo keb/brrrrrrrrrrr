@@ -7,28 +7,37 @@
 # 1. Install VirtualBox https://www.virtualbox.org/
 # 2. Install Vagrant https://www.vagrantup.com/
 # 3. Download this `Vagrantfile` to a folder
-# 4. Modify VM_MEMORY and VM_CORES as is needed
+# 4. Modify VM_MEMORY, VM_CORES and VM_DISKSIZE as is needed
 # 5. Run `vagrant up` in that folder
 # 6. Run `vagrant ssh` and follow the steps below
 # 7. Follow instructions from README.md
 #
-# This is the default Vagrantfile provided by Buildroot (2023.11.1),
+# This is the default Vagrantfile provided by Buildroot (2024.02),
 # with the following modifications
+# - Changed name of VM
 # - Update ubuntu/bionic64 (18.04) to ubuntu/jammy64 (22.04)
-# - Increase VM_MEMORY and VM_CORES
+# - Increase VM_MEMORY (1024 to 8192) and VM_CORES (1 to 4)
+# - Add VM_DISKSIZE via vagrant-disksize plugin, but keep at default 40GB
 # - Add libssl-dev to packages installed on provision
 #
 ################################################################################
 
 # Buildroot version to use
-RELEASE='2023.11.1'
+RELEASE='2024.02'
 
 ### Change here for more memory/cores ###
 VM_MEMORY=8192
 VM_CORES=4
+VM_DISKSIZE='40GB'
+
+unless Vagrant.has_plugin?("vagrant-disksize")
+	raise  Vagrant::Errors::VagrantError.new, "vagrant-disksize plugin is missing. Please install it using 'vagrant plugin install vagrant-disksize' and rerun 'vagrant up'"
+end
 
 Vagrant.configure('2') do |config|
 	config.vm.box = 'ubuntu/jammy64'
+
+	config.disksize.size = VM_DISKSIZE
 
 	config.vm.provider :vmware_fusion do |v, override|
 		v.vmx['memsize'] = VM_MEMORY
@@ -49,11 +58,11 @@ Vagrant.configure('2') do |config|
 		s.inline = 'echo Setting up machine name'
 
 		config.vm.provider :vmware_fusion do |v, override|
-			v.vmx['displayname'] = "Buildroot #{RELEASE} (Jammy)"
+			v.vmx['displayname'] = "BRRR Buildroot #{RELEASE} (Jammy)"
 		end
 
 		config.vm.provider :virtualbox do |v, override|
-			v.name = "Buildroot #{RELEASE} (Jammy)"
+			v.name = "BRRR Buildroot #{RELEASE} (Jammy)"
 		end
 	end
 

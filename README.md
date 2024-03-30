@@ -26,7 +26,7 @@ There are several ways to set up such prerequisites, e.g.,
 ### Building the image
 
 1. Clone this repo to `brrrrrrrr`
-2. In the buildroot dir, run `patch -p1 < /path/to/brrrrrrrr/buildroot.patch`
+2. In the buildroot dir, run `patch -p1 < /path/to/brrrrrrrr/buildroot*.patch`
 3. Then run `make O=rgarc BR2_EXTERNAL=/path/to/brrrrrrrr rgarc_defconfig`
 4. `cd rgarc` and run `make -jN`, where `N` is the number of simultaneous jobs (consider available cpus, cores and hyperthreading)
 5. Image to flash will be in `output/images/BRRRRRRRRRR-rgarc.img`

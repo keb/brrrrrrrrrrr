@@ -1,0 +1,189 @@
+diff --git a/package/libxkbcommon/libxkbcommon.hash b/package/libxkbcommon/libxkbcommon.hash
+index fff2b7a943..66fa6b20cc 100644
+--- a/package/libxkbcommon/libxkbcommon.hash
++++ b/package/libxkbcommon/libxkbcommon.hash
+@@ -1,5 +1,5 @@
+-# From https://lists.freedesktop.org/archives/wayland-devel/2022-February/042104.html
+-sha256  106cec5263f9100a7e79b5f7220f889bc78e7d7ffc55d2b6fdb1efefb8024031  libxkbcommon-1.4.0.tar.xz
++# From https://lists.freedesktop.org/archives/wayland-devel/2023-October/043121.html
++sha256  0edc14eccdd391514458bc5f5a4b99863ed2d651e4dd761a90abf4f46ef99c2b  libxkbcommon-1.6.0.tar.xz
+ 
+ # License file:
+ sha256  086caee279449369d41c1157911ec7696e707b93feba7280de757d3c470b2dfb  LICENSE
+diff --git a/package/libxkbcommon/libxkbcommon.mk b/package/libxkbcommon/libxkbcommon.mk
+index 882791b917..b41784af5e 100644
+--- a/package/libxkbcommon/libxkbcommon.mk
++++ b/package/libxkbcommon/libxkbcommon.mk
+@@ -4,7 +4,7 @@
+ #
+ ################################################################################
+ 
+-LIBXKBCOMMON_VERSION = 1.4.0
++LIBXKBCOMMON_VERSION = 1.6.0
+ LIBXKBCOMMON_SITE = https://xkbcommon.org/download
+ LIBXKBCOMMON_SOURCE = libxkbcommon-$(LIBXKBCOMMON_VERSION).tar.xz
+ LIBXKBCOMMON_LICENSE = MIT/X11
+diff --git a/package/mesa3d-headers/mesa3d-headers.mk b/package/mesa3d-headers/mesa3d-headers.mk
+index 1d006dbc91..7f39fefaf5 100644
+--- a/package/mesa3d-headers/mesa3d-headers.mk
++++ b/package/mesa3d-headers/mesa3d-headers.mk
+@@ -12,7 +12,7 @@ endif
+ 
+ # Not possible to directly refer to mesa3d variables, because of
+ # first/second expansion trickery...
+-MESA3D_HEADERS_VERSION = 24.0.0
++MESA3D_HEADERS_VERSION = 24.0.3
+ MESA3D_HEADERS_SOURCE = mesa-$(MESA3D_HEADERS_VERSION).tar.xz
+ MESA3D_HEADERS_SITE = https://archive.mesa3d.org
+ MESA3D_HEADERS_DL_SUBDIR = mesa3d
+diff --git a/package/mesa3d/mesa3d.hash b/package/mesa3d/mesa3d.hash
+index 49b42e2132..1e94c2c612 100644
+--- a/package/mesa3d/mesa3d.hash
++++ b/package/mesa3d/mesa3d.hash
+@@ -1,5 +1,5 @@
+-# From https://lists.freedesktop.org/archives/mesa-announce/2024-February/000747.html
+-sha256  dc7e8c077bc5884df95478263b34bdebb7e88e600689cb56fb07be2b8c304c36  mesa-24.0.0.tar.xz
+-sha512  9dfdea7cebb37b9c020335e24194b39b399f48b5af6eec30c3455108276ac4e29e7b06df942cb2abc7afa667784968c0c43d19b9afe30ef03021b9cb6a789f15  mesa-24.0.0.tar.xz
++# From https://lists.freedesktop.org/archives/mesa-announce/2024-March/000752.html
++sha256  77aec9a2a37b7d3596ea1640b3cc53d0b5d9b3b52abed89de07e3717e91bfdbe  mesa-24.0.3.tar.xz
++sha512  76b3b479877c40f729d7f530af4e3577fa74363edcd3d9474350d498a51dbb761fc034b39bee8547e97c30fd3a520cbc50c742d5a187746e83ddab1df44f37e9  mesa-24.0.3.tar.xz
+ # License
+ sha256  a00275a53178e2645fb65be99a785c110513446a5071ff2c698ed260ad917d75  docs/license.rst
+diff --git a/package/mesa3d/mesa3d.mk b/package/mesa3d/mesa3d.mk
+index 8e3cd7245d..cc98ba0fd8 100644
+--- a/package/mesa3d/mesa3d.mk
++++ b/package/mesa3d/mesa3d.mk
+@@ -5,7 +5,7 @@
+ ################################################################################
+ 
+ # When updating the version, please also update mesa3d-headers
+-MESA3D_VERSION = 24.0.0
++MESA3D_VERSION = 24.0.3
+ MESA3D_SOURCE = mesa-$(MESA3D_VERSION).tar.xz
+ MESA3D_SITE = https://archive.mesa3d.org
+ MESA3D_LICENSE = MIT, SGI, Khronos
+diff --git a/package/sway/Config.in b/package/sway/Config.in
+index 4f6d9fb215..34605e0bc3 100644
+--- a/package/sway/Config.in
++++ b/package/sway/Config.in
+@@ -18,6 +18,7 @@ config BR2_PACKAGE_SWAY
+ 	select BR2_PACKAGE_CAIRO
+ 	select BR2_PACKAGE_CAIRO_PNG
+ 	select BR2_PACKAGE_PANGO
++	select BR2_PACKAGE_LIBXKBCOMMON
+ 	select BR2_PACKAGE_XKEYBOARD_CONFIG # runtime
+ 	help
+ 	  i3-compatible Wayland compositor
+diff --git a/package/sway/sway.hash b/package/sway/sway.hash
+index 86b6581f1c..6cadbc0b40 100644
+--- a/package/sway/sway.hash
++++ b/package/sway/sway.hash
+@@ -1,3 +1,3 @@
+ # Locally computed, tarball verified with GPG signature
+-sha256  73f08fd2cf7948e8af900709efe44eae412ae11c5773960e25c9aa09f73bad41  sway-1.8.1.tar.gz
++sha256  a63b2df8722ee595695a0ec6c84bf29a055a9767e63d8e4c07ff568cb6ee0b51  sway-1.9.tar.gz
+ sha256  bd35722bff46327f5eded1d211207277bbe043d2a22048b282c42ef801593b8b  LICENSE
+diff --git a/package/sway/sway.mk b/package/sway/sway.mk
+index 0aad9de712..c65255cf65 100644
+--- a/package/sway/sway.mk
++++ b/package/sway/sway.mk
+@@ -4,17 +4,16 @@
+ #
+ ################################################################################
+ 
+-SWAY_VERSION = 1.8.1
++SWAY_VERSION = 1.9
+ SWAY_SITE = https://github.com/swaywm/sway/releases/download/$(SWAY_VERSION)
+ SWAY_LICENSE = MIT
+ SWAY_LICENSE_FILES = LICENSE
+-SWAY_DEPENDENCIES = systemd host-pkgconf wlroots json-c pcre cairo pango
++SWAY_DEPENDENCIES = host-pkgconf wlroots json-c pcre cairo pango libxkbcommon
+ SWAY_CONF_OPTS = \
+ 	-Dwerror=false \
+ 	-Dzsh-completions=false \
+ 	-Dfish-completions=false \
+-	-Dman-pages=disabled \
+-	-Dsd-bus-provider=libsystemd
++	-Dman-pages=disabled
+ 
+ ifeq ($(BR2_PACKAGE_WLROOTS_X11),y)
+ SWAY_CONF_OPTS += -Dxwayland=enabled
+diff --git a/package/wlroots/0001-Add-feature-macros-to-more-C-files-.patch b/package/wlroots/0001-Add-feature-macros-to-more-C-files-.patch
+index 0e1ae9d87a..560994a26e 100644
+--- a/package/wlroots/0001-Add-feature-macros-to-more-C-files-.patch
++++ b/package/wlroots/0001-Add-feature-macros-to-more-C-files-.patch
+@@ -16,7 +16,6 @@ Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+  types/data_device/wlr_data_device.c       | 1 +
+  types/data_device/wlr_drag.c              | 1 +
+  types/wlr_export_dmabuf_v1.c              | 1 +
+- types/wlr_idle.c                          | 1 +
+  types/wlr_keyboard_shortcuts_inhibit_v1.c | 1 +
+  types/wlr_pointer_constraints_v1.c        | 1 +
+  types/wlr_primary_selection.c             | 1 +
+@@ -66,15 +65,6 @@ index a8e2a4bde3..98ceae68f1 100644
+  #include <assert.h>
+  #include <stdlib.h>
+  #include <unistd.h>
+-diff --git a/types/wlr_idle.c b/types/wlr_idle.c
+-index 4c338931cc..80fd871fab 100644
+---- a/types/wlr_idle.c
+-+++ b/types/wlr_idle.c
+-@@ -1,3 +1,4 @@
+-+#define _POSIX_C_SOURCE 199309L
+- #include <assert.h>
+- #include <stdlib.h>
+- #include <string.h>
+ diff --git a/types/wlr_keyboard_shortcuts_inhibit_v1.c b/types/wlr_keyboard_shortcuts_inhibit_v1.c
+ index fe4e64b04e..8360a9c21c 100644
+ --- a/types/wlr_keyboard_shortcuts_inhibit_v1.c
+diff --git a/package/wlroots/Config.in b/package/wlroots/Config.in
+index 7622a3033b..77fe3185f8 100644
+--- a/package/wlroots/Config.in
++++ b/package/wlroots/Config.in
+@@ -16,6 +16,7 @@ config BR2_PACKAGE_WLROOTS
+ 	depends on BR2_PACKAGE_HAS_LIBEGL
+ 	depends on BR2_PACKAGE_HAS_LIBEGL_WAYLAND
+ 	depends on BR2_PACKAGE_HAS_LIBGLES
++	select BR2_PACKAGE_LIBDISPLAY_INFO
+ 	select BR2_PACKAGE_HWDATA
+ 	select BR2_PACKAGE_HWDATA_PNP_IDS
+ 	select BR2_PACKAGE_LIBDRM
+diff --git a/package/wlroots/wlroots.hash b/package/wlroots/wlroots.hash
+index 8ab05393b1..4f4d629b24 100644
+--- a/package/wlroots/wlroots.hash
++++ b/package/wlroots/wlroots.hash
+@@ -1,5 +1,5 @@
+-# Generated locally, after checking https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.16.2/downloads/wlroots-0.16.2.tar.gz.sig
+-sha256  83e9a11605f23d4bf781ab1947089483d9ec3f7e9ba65398e0609593b77d44aa  wlroots-0.16.2.tar.gz
++# Generated locally, after checking https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.17.2/downloads/wlroots-0.17.2.tar.gz.sig
++sha256  f4007d3f71e190b9000ab4a30afd87833b034ab2602030a00af4465ffd4e997c  wlroots-0.17.2.tar.gz
+ 
+ # Hashes for license files:
+ sha256  ffd3737a478b83a8b51b42757d3bf909ef36694508355879722e11fc1fa6736b  LICENSE
+diff --git a/package/wlroots/wlroots.mk b/package/wlroots/wlroots.mk
+index fdd2fb8250..18f8c7b428 100644
+--- a/package/wlroots/wlroots.mk
++++ b/package/wlroots/wlroots.mk
+@@ -4,7 +4,7 @@
+ #
+ ################################################################################
+ 
+-WLROOTS_VERSION = 0.16.2
++WLROOTS_VERSION = 0.17.2
+ WLROOTS_SITE = https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/$(WLROOTS_VERSION)/downloads
+ WLROOTS_LICENSE = MIT
+ WLROOTS_LICENSE_FILES = LICENSE
+@@ -13,11 +13,13 @@ WLROOTS_INSTALL_STAGING = YES
+ WLROOTS_DEPENDENCIES = \
+ 	host-pkgconf \
+ 	host-wayland \
++	libdisplay-info \
+ 	hwdata \
+ 	libinput \
+ 	libxkbcommon \
+ 	libegl \
+ 	libgles \
++	mesa3d \
+ 	pixman \
+ 	seatd \
+ 	udev \

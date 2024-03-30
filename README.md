@@ -2,7 +2,7 @@
 
 ## Features
 
-- Linux 6.8
+- Linux 6.8.2
 - bcachefs support w/ zstd compression
 - Recent RetroArch
 - Sway
@@ -55,12 +55,12 @@ https://man.archlinux.org/man/iwd.network.5
 You can connect to your device via SSH and SFTP, as follows
 1. Enable and configure networking
 2. Note the device's IP shown in Information > Network Information
-3. Connect via SSH or SFTP using login/pass: `root`/`BRRRRRRRRRR`
+3. Connect via SSH or SFTP using login/pass: `root` / `BRRRRRRRRRR`
 
 ### On-device terminal
 
 Connecting an external keyboard to the OTG USB port, you can switch to tty2 from RetroArch by
-pressing ctrl+alt+f2, and switch back to retroarch by alt-f1. The same login/pass as for SSH and SFTP apply.
+pressing ctrl+alt+f2, and switch back to sway/retroarch by alt-f1. The same login/pass as for SSH and SFTP apply.
 
 ### On boot
 

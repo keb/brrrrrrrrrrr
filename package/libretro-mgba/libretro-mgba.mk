@@ -11,7 +11,7 @@ LIBRETRO_MGBA_LICENSE_FILES = LICENSE
 
 define LIBRETRO_MGBA_BUILD_CMDS
 	#$(SED) "s|-O2|-O3|g" $(@D)/Makefile.libretro
-	$(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D) -f Makefile.libretro
+	$(TARGET_MAKE_ENV) $(TARGET_CONFIGURE_OPTS) $(LTO_FLAGS) $(MAKE) -C $(@D) -f Makefile.libretro
 endef
 
 define LIBRETRO_MGBA_INSTALL_TARGET_CMDS

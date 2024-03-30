@@ -81,8 +81,8 @@ define RETROARCH_CONFIGURE_CMDS
 	(cd $(@D); rm -f config.mk; \
 		$(TARGET_CONFIGURE_ARGS) \
         $(TARGET_CONFIGURE_OPTS) \
-        CFLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include/drm -flto" \
-        CXXFLAGS="$(TARGET_CXXFLAGS) -I$(STAGING_DIR)/usr/include/drm -flto" \
+        CFLAGS="$(TARGET_CFLAGS) -I$(STAGING_DIR)/usr/include/drm -flto=auto" \
+        CXXFLAGS="$(TARGET_CXXFLAGS) -I$(STAGING_DIR)/usr/include/drm -flto=auto" \
         LDFLAGS="$(TARGET_LDFLAGS) -ldrm" \
         CROSS_COMPILE="$(HOST_DIR)/bin/" \
         PKG_CONFIG_PATH="$(STAGING_DIR)/usr/lib/pkgconfig/" \

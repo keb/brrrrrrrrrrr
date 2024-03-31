@@ -6,7 +6,7 @@
 
 RETROARCH_VERSION = v1.18.0
 RETROARCH_SITE = $(call github,libretro,RetroArch,$(RETROARCH_VERSION))
-RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libglvnd libgles mesa3d sdl2
+RETROARCH_DEPENDENCIES = host-pkgconf libdrm alsa-lib freetype eudev libpng libglvnd libgles mesa3d
 RETROARCH_LICENSE = GPL-3.0-or-later
 RETROARCH_LICENSE_FILES = COPYING
 RETROARCH_CONF_OPTS += \
@@ -40,6 +40,7 @@ RETROARCH_CONF_OPTS += \
 		--disable-qt \
 		--disable-rpiled \
 		--disable-sdl \
+		--disable-sdl2 \
 		--disable-sixel \
 		--disable-ssa \
 		--disable-systemd \
@@ -62,7 +63,6 @@ RETROARCH_CONF_OPTS += \
 		--enable-opengles \
 		--enable-opengles3 \
 		--enable-opengles3_2 \
-		--enable-sdl2 \
 		--enable-slang \
 		--enable-spirv_cross \
 		--enable-tinyalsa \

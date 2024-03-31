@@ -7,6 +7,8 @@ source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-pce-fast/Config.i
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-wswan/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-core-info/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-desmume/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/wob/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-fbneo/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-flycast/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-gambatte/Config.in"

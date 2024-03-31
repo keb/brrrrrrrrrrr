@@ -1,0 +1,7 @@
+config BR2_PACKAGE_WOB
+	select BR2_PACKAGE_INIH
+	select BR2_PACKAGE_WAYLAND
+	select BR2_PACKAGE_WAYLAND_PROTOCOLS
+	bool "wob"
+	help
+        wayland overlay bar

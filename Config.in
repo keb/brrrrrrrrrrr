@@ -1,5 +1,7 @@
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/brightnessctl/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/evsieve/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status-rust/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-assets-ozone/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-atari800/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-ngp/Config.in"
@@ -7,8 +9,6 @@ source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-pce-fast/Config.i
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-beetle-wswan/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-core-info/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-desmume/Config.in"
-source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status/Config.in"
-source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/wob/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-fbneo/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-flycast/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-gambatte/Config.in"
@@ -28,6 +28,7 @@ source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-swanstation/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-vecx/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/librga/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/retroarch/Config.in"
+source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/wob/Config.in"
 
 # sway absolutely does *not* need systemd!
 config BR2_PACKAGE_SWAY

@@ -1,5 +1,54 @@
-output DSI-1 bg #000000 solid_color
+set $select Ctrl
+set $F Mod4
+
+input type:keyboard {
+	repeat_delay 250
+	repeat_rate 50
+}
+
+output DSI-1 {
+    bg #000000 solid_color
+    transform 90
+    max_render_time off
+}
+
+exec {
+	mkfifo /tmp/wobpipe
+	tail -s 1 -F /tmp/wobpipe | wob
+}
+
+bindsym XF86PowerOff exec poweroff
+bindsym XF86AudioLowerVolume exec "amixer sset Master 1%- -q && amixer sget Master | sed -n 's/.*Front Left:.*\[\([0-9]*\)%\].*/\1/p' > /tmp/wobpipe"
+bindsym XF86AudioRaiseVolume exec "amixer sset Master 1%+ -q && amixer sget Master | sed -n 's/.*Front Left:.*\[\([0-9]*\)%\].*/\1/p' > /tmp/wobpipe"
+bindsym $select+XF86AudioLowerVolume exec brightnessctl s 1%- -n 1 -q
+bindsym $select+XF86AudioRaiseVolume exec brightnessctl s 1%+ -n 1 -q
+bindsym $F+XF86AudioLowerVolume exec iwctl device wlan0 set-property Powered off
+bindsym $F+XF86AudioRaiseVolume exec iwctl device wlan0 set-property Powered on
+
 default_border none
-output DSI-1 transform 90
-output DSI-1 max_render_time off
+
+bar {
+    position top
+    font pango:DejaVu Sans Mono 12
+    status_command i3status
+    mode hide
+    hidden_state hide
+
+    colors {
+        statusline #ffffff
+        background #323232
+        inactive_workspace #32323200 #32323200 #5c5c5c
+    }
+}
+
+exec_always {
+	killall evsieve; evsieve \
+		--input /dev/input/by-path/platform-gpio-keys-control-event-joystick \
+		--map btn:select key:leftctrl \
+		--input /dev/input/by-path/platform-adc-keys-event-joystick \
+		--map btn:mode key:leftmeta \
+		--output name=virtkb create-link=/dev/input/by-path/virtkb
+}
+
 exec retroarch.sh
+

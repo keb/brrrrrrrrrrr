@@ -1,4 +1,4 @@
-From fe81d66e414f77c3d431b4e6d3bff651470e8d5e Mon Sep 17 00:00:00 2001
+From a6404820e5538870dc406fb9f155427d57c2d50c Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Thu, 12 Oct 2023 23:06:30 -0400
 Subject: [PATCH] rk3566 kernel copt optimizations
@@ -8,7 +8,7 @@ Subject: [PATCH] rk3566 kernel copt optimizations
  1 file changed, 1 insertion(+)
 
 diff --git a/Makefile b/Makefile
-index 41fa8a2565f5..19cbe145a6a2 100644
+index c7ee53f4bf04..6044557ffc2a 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -842,6 +842,7 @@ stackp-flags-$(CONFIG_STACKPROTECTOR)             := -fstack-protector
@@ -20,5 +20,5 @@ index 41fa8a2565f5..19cbe145a6a2 100644
  KBUILD_RUSTFLAGS-$(CONFIG_WERROR) += -Dwarnings
  KBUILD_RUSTFLAGS += $(KBUILD_RUSTFLAGS-y)
 -- 
-2.43.2
+2.44.0
 

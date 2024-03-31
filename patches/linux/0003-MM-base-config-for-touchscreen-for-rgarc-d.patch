@@ -1,4 +1,4 @@
-From 0c7b0ea8ee3906cc4169763f9f8e4521ceddaf8a Mon Sep 17 00:00:00 2001
+From 0df7aacbcf0c43c7144718e720e33a320e0d7ec3 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Tue, 30 Jan 2024 20:24:48 -0500
 Subject: [PATCH] MM base config for touchscreen for rgarc-d
@@ -46,5 +46,5 @@ index 795fbedc3c1b..f6e70e2467a7 100644
  
  &sdhci {
 -- 
-2.43.2
+2.44.0
 

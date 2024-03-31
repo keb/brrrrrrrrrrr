@@ -1,4 +1,4 @@
-From 37fd9f190a270f7625ef9d8a0cda8b21750a50c6 Mon Sep 17 00:00:00 2001
+From ea46a1bed03702bcb26dcf3e0b40260594253156 Mon Sep 17 00:00:00 2001
 From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
 Date: Wed, 7 Feb 2024 15:10:43 -0500
 Subject: [PATCH] st7701 (rgarc) fix panel alignment
@@ -21,5 +21,5 @@ index 421eb4592b61..6f4fc0bc4df5 100644
  	.width_mm	= 63,
  	.height_mm	= 84,
 -- 
-2.43.2
+2.44.0
 

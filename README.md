@@ -4,7 +4,7 @@
 
 - Linux 6.8.2
 - bcachefs support w/ zstd compression
-- Recent RetroArch
+- RetroArch 1.8
 - Sway
 - Upgradable and reset to factory
 - Ridiculous mode (like quick mode), enable by holding 'A' on startup
@@ -69,12 +69,12 @@ Hold `L1` to enter Recovery Menu.
 ### Global
 
 - Power:              Power off
-- select + volup:     enable network
-- select + voldown:   disable network
 - volup:              volume up
 - voldown:            volume down
-- F + volup:          brightness up
-- F + voldown:        brightness down
+- select + volup:     brightness up
+- select + voldown:   brightness down
+- F + volup:          enable wifi
+- F + voldown:        disable wifi
 
 ### RetroArch
 

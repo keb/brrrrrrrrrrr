@@ -16,6 +16,9 @@ mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/S70iwd 2> /dev/null 
 mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/S91chrony 2> /dev/null || true
 mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/S92sshd 2> /dev/null || true
 
+mkdir -p ${TARGET_DIR}/etc/udev/rules.d
+echo 'ACTION=="add", SUBSYSTEM=="input", ATTRS{name}=="virtkb", ENV{ID_INPUT_JOYSTICK}=""' > ${TARGET_DIR}/etc/udev/rules.d/99-virtkb.rules
+
 # copy dtbs
 rm -rf "${BINARIES_DIR}/rockchip"
 mkdir -p "${BINARIES_DIR}/rockchip"

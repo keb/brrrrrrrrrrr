@@ -29,26 +29,26 @@ default_border none
 
 bar {
     position top
-    font pango:DejaVu Sans Mono 12
+    font pango:DejaVu Sans Mono 13
     status_command i3status
     mode hide
     hidden_state hide
+    workspace_buttons no
+    status_padding 7
 
     colors {
-        statusline #ffffff
-        background #323232
-        inactive_workspace #32323200 #32323200 #5c5c5c
+        statusline #ebdbb2
+        background #282828dd
+	separator #92a374
     }
 }
 
-exec_always {
-	killall evsieve; evsieve \
+exec_always "killall evsieve; evsieve \
 		--input /dev/input/by-path/platform-gpio-keys-control-event-joystick \
 		--map btn:select key:leftctrl \
 		--input /dev/input/by-path/platform-adc-keys-event-joystick \
 		--map btn:mode key:leftmeta \
-		--output name=virtkb create-link=/dev/input/by-path/virtkb
-}
+		--output name=virtkb create-link=/dev/input/by-path/virtkb"
 
 exec retroarch.sh
 

@@ -4,7 +4,7 @@
 
 - Linux 6.8.2
 - bcachefs support w/ zstd compression
-- RetroArch 1.8
+- RetroArch 1.18
 - Sway
 - Upgradable and reset to factory
 - Ridiculous mode (like quick mode), enable by holding 'A' on startup
@@ -19,7 +19,7 @@
 
 There are several ways to set up such prerequisites, e.g.,
 
-- Using an existing Linux distribution, cloning buildroot https://github.com/buildroot/buildroot to `buildroot` and checking out tag `2024.02`
+- Using an existing Linux distribution, cloning buildroot https://github.com/buildroot/buildroot to `buildroot` and checking out tag `2024.02.1`
 - Using a docker, see `Dockerfile`
 - Using a VM, see `Vagrantfile`
 
@@ -59,8 +59,8 @@ You can connect to your device via SSH and SFTP, as follows
 
 ### On-device terminal
 
-Connecting an external keyboard to the OTG USB port, you can switch to tty2 from RetroArch by
-pressing ctrl+alt+f2, and switch back to sway/retroarch by alt-f1. The same login/pass as for SSH and SFTP apply.
+Connecting an external keyboard to the OTG USB port, you can switch to tty2 from Sway/RetroArch by
+pressing ctrl+alt+f2, and switch back to Sway/RetroArch by alt-f1. The same login/pass as for SSH and SFTP apply.
 
 ### On boot
 

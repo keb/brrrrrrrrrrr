@@ -12,7 +12,7 @@
 # 6. Run `vagrant ssh` and follow the steps below
 # 7. Follow instructions from README.md
 #
-# This is the default Vagrantfile provided by Buildroot (2024.02),
+# This is the default Vagrantfile provided by Buildroot (2024.02.1),
 # with the following modifications
 # - Changed name of VM
 # - Update ubuntu/bionic64 (18.04) to ubuntu/jammy64 (22.04)
@@ -23,7 +23,7 @@
 ################################################################################
 
 # Buildroot version to use
-RELEASE='2024.02'
+RELEASE='2024.02.1'
 
 ### Change here for more memory/cores ###
 VM_MEMORY=8192

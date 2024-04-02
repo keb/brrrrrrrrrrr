@@ -34,6 +34,18 @@ There are several ways to set up such prerequisites, e.g.,
 Note that building the image can take anywhere from minutes to hours, depending mostly on the
 amount of CPUs/cores available. There are no notable hard disk space requirements.
 
+### rg-arc-d users note
+
+rg-arc-d emmc needs to be wiped in order to be able to boot mainline Linux. Note
+that this is destructive and we cannot take any responsibility. Backup your emmc
+if you want it back.
+
+1. From power off and sd ejected, hold down power and volume down to get into Android recovery
+2. Use `adb shell` to get a root shell:
+3. [Optional] Backup emmc partition: `dd if=/dev/mmcblk0 of=<some sd card location> bs=4M`
+4. Run `dd if=/dev/zero of=/dev/block/mmcblk0 bs=512 count=2` or alternatively,
+   `dd if=/dev/zero of=/dev/block/mmcblk0 bs=4M` to wipe the whole thing.
+
 ## Usage
 
 ### Networking
@@ -78,7 +90,7 @@ Hold `L1` to enter Recovery Menu.
 
 ### RetroArch
 
-Check/customize settings
+Refer to RetroArch settings
 
 ### Storage
 

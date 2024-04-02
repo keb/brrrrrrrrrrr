@@ -1,9 +1,9 @@
 # docker build -t brrr .
-# docker run -v .:/workspace/ext brrr bash -c "patch -p1 < /workspace/ext/buildroot.patch && make BR2_EXTERNAL=/workspace/ext rgarc_defconfig && make -j16 && cp -rv output/images /workspace/ext/output"
+# docker run -v .:/workspace/ext brrr bash -c "patch -p1 < /workspace/ext/buildroot*.patch && make BR2_EXTERNAL=/workspace/ext rgarc_defconfig && make -j16 && cp -rv output/images /workspace/ext/output"
 
 FROM debian:latest
 
-ARG BR_VER=2024.02
+ARG BR_VER=2024.02.1
 ENV HOSTNAME brrrrrrrrrr
 
 RUN apt-get update && apt-get install -y \

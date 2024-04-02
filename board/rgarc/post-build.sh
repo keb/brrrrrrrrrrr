@@ -9,6 +9,7 @@ BOARD_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 mkdir -p ${BINARIES_DIR}
 mkdir -p ${TARGET_DIR}/boot
 mkdir -p ${TARGET_DIR}/userdata
+mkdir -p ${TARGET_DIR}/root/.cache
 sed -i ${TARGET_DIR}/etc/ssh/sshd_config -e "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/"
 rm -f ${TARGET_DIR}/etc/init.d/{S01syslogd,S02klogd,S01seedrng}
 rm -f ${TARGET_DIR}/etc/acpi/events/powerbtn

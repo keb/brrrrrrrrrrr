@@ -6,5 +6,5 @@ if test -z "${XDG_RUNTIME_DIR}"; then
     fi
 fi
 
-export WAYLAND_DISPLAY="${XDG_RUNTIME_DIR}/wayland-[01]"
-export WAYLAND_DISPLAY=$(basename $WAYLAND_DISPLAY)
+#export WAYLAND_DISPLAY="${XDG_RUNTIME_DIR}/wayland-[01]"
+#export WAYLAND_DISPLAY=$(basename $WAYLAND_DISPLAY)

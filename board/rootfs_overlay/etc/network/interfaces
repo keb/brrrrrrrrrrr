@@ -1,5 +1,0 @@
-auto lo
-iface lo inet loopback
-auto usb0
-iface usb0 inet static
-	address 192.0.2.1/24

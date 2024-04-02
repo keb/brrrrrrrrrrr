@@ -20,6 +20,15 @@ mv ${TARGET_DIR}/etc/init.d/S50sshd ${TARGET_DIR}/etc/init.d/S92sshd 2> /dev/nul
 mkdir -p ${TARGET_DIR}/etc/udev/rules.d
 echo 'ACTION=="add", SUBSYSTEM=="input", ATTRS{name}=="virtkb", ENV{ID_INPUT_JOYSTICK}=""' > ${TARGET_DIR}/etc/udev/rules.d/99-virtkb.rules
 
+cat <<EOF > ${TARGET_DIR}/etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+auto usb0
+iface usb0 inet static
+    address 192.0.2.1/24
+EOF
+
 # copy dtbs
 rm -rf "${BINARIES_DIR}/rockchip"
 mkdir -p "${BINARIES_DIR}/rockchip"

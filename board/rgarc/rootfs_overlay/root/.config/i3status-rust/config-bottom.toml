@@ -1,0 +1,15 @@
+[theme]
+theme = "plain"
+
+[icons]
+icons = "awesome4"
+
+[[block]]
+block = "disk_space"
+format = "$icon userdata $available.eng(w:1)/$total.eng(w:1)"
+path = "/userdata"
+
+[[block]]
+block = "net"
+device = "wlan0"
+format = " $icon $device {$signal_strength $ssid $ip}"

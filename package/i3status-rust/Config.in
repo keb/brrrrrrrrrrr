@@ -1,7 +1,9 @@
 config BR2_PACKAGE_I3STATUS_RUST
 	bool "i3status_rust"
 	depends on BR2_PACKAGE_HOST_RUSTC_TARGET_ARCH_SUPPORTS
+	select BR2_PACKAGE_ALSA_UTILS
 	select BR2_PACKAGE_HOST_RUSTC
 	select BR2_PACKAGE_LM_SENSORS
+	select BR2_PACKAGE_UPOWER
 	help
         i3status_rust

@@ -1,0 +1,57 @@
+[theme]
+theme = "plain"
+
+[icons]
+icons = "awesome4"
+
+[[block]]
+block = "memory"
+format = "$icon $mem_used/$mem_total.eng(w:1)"
+
+[[block]]
+block = "temperature"
+format = "GPU $max"
+chip = "gpu_thermal-*"
+good = 50
+idle = 60
+info = 70
+warning = 80
+
+[[block]]
+block = "cpu"
+format = "CPU $utilization "
+merge_with_next = true
+
+[[block]]
+block = "temperature"
+format = "$max"
+chip = "cpu_thermal-*"
+good = 50
+idle = 60
+info = 70
+warning = 80
+
+[[block]]
+block = "backlight"
+format = "$icon $brightness"
+
+[[block]]
+block = "sound"
+format = "$icon $volume"
+
+[[block]]
+block = "battery" 
+format = "$icon"
+merge_with_next = true
+
+[[block]]
+block = "custom"
+command = """echo "$(($(cat /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/current_avg) / 1000))mA""""
+format = "$text"
+interval = 1
+
+[[block]]
+block = "time"
+interval = 60
+format = "$timestamp.datetime(f:'%R')"
+

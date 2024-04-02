@@ -1,6 +1,5 @@
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/brightnessctl/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/evsieve/Config.in"
-source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/i3status-rust/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-assets-ozone/Config.in"
 source "$BR2_EXTERNAL_BRRRRRRRRRR_PATH/package/libretro-atari800/Config.in"

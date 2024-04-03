@@ -80,7 +80,8 @@ Hold `L1` to enter Recovery Menu.
 
 ### Global
 
-- Power:              Power off
+- Power:              Suspend
+- F + Power:          Power off
 - volup:              volume up
 - voldown:            volume down
 - select + volup:     brightness up

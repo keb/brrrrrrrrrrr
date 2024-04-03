@@ -1,5 +1,5 @@
-set $select Ctrl
 set $F Mod4
+set $select_down evtest --query /dev/input/by-path/platform-gpio-keys-control-event-joystick EV_KEY BTN_SELECT
 
 exec retroarch.sh
 
@@ -14,11 +14,11 @@ output DSI-1 {
     max_render_time off
 }
 
-bindsym XF86PowerOff exec poweroff
-bindsym XF86AudioLowerVolume exec amixer -q sset Master 1%-
-bindsym XF86AudioRaiseVolume exec amixer -q sset Master 1%+
-bindsym $select+XF86AudioLowerVolume exec brightnessctl s 1%- -n 1 -q
-bindsym $select+XF86AudioRaiseVolume exec brightnessctl s 1%+ -n 1 -q
+bindsym XF86PowerOff exec zzz
+bindsym $F+XF86PowerOff exec poweroff
+
+bindsym XF86AudioLowerVolume exec $select_down && amixer -q sset Master 1%- || brightnessctl s 1%- -n 1 -q
+bindsym XF86AudioRaiseVolume exec $select_down && amixer -q sset Master 1%+ || brightnessctl s 1%+ -n 1 -q
 bindsym $F+XF86AudioLowerVolume exec iwctl device wlan0 set-property Powered off
 bindsym $F+XF86AudioRaiseVolume exec iwctl device wlan0 set-property Powered on
 
@@ -58,10 +58,8 @@ bar {
 }
 
 exec_always "killall evsieve; evsieve \
-		--input /dev/input/by-path/platform-gpio-keys-control-event-joystick \
 		--input /dev/input/by-path/platform-adc-keys-event-joystick \
 		--input /dev/input/by-path/platform-sound-event \
-		--map btn:select key:leftctrl \
 		--map btn:mode key:leftmeta \
 		--hook sw:headphone_insert:1 exec-shell='amixer -q -c 1 sset Internal\ Speakers off' \
 		--hook sw:headphone_insert:0 exec-shell='amixer -q -c 1 sset Internal\ Speakers on' \

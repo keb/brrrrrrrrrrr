@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo 1 > /sys/class/input/event1/device/inhibited
+echo mem > /sys/power/state
+sleep 3
+echo 0 > /sys/class/input/event1/device/inhibited

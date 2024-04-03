@@ -18,7 +18,11 @@ show /sys/devices/virtual/thermal/thermal_zone0/temp
 show /sys/devices/virtual/thermal/thermal_zone1/temp
 echo
 show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/current_avg
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/voltage_avg
 show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/capacity
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/charge_now
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/voltage_min_design
+show /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/voltage_max_design
 echo
 show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/cur_freq
 show /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/available_frequencies

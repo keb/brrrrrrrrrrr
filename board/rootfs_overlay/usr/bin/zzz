@@ -1,6 +1,22 @@
 #!/bin/bash
 
+rate=1.0 # percent per capacity unit
+now=$(date '+%s')
+capacity=$(cat /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/capacity)
+poweroff_threshold=0.8
+poweroff_offset=$(echo "$rate * $capacity * 3600 * (1.0 - $poweroff_threshold)" | bc)
+poweroff_offset=$(printf "%.0f" "$poweroff_offset")
+wakeup=$(echo "$now + $poweroff_offset" | bc)
+
+echo $wakeup > /sys/class/rtc/rtc0/wakealarm
+
 echo 1 > /sys/class/input/event1/device/inhibited
 echo mem > /sys/power/state
-sleep 3
 echo 0 > /sys/class/input/event1/device/inhibited
+
+if [ -z "$(cat /sys/class/rtc/rtc0/wakealarm)" ]; then
+	echo "poweroff" >> $f
+	poweroff
+else
+	echo 0 > /sys/class/rtc/rtc0/wakealarm
+fi

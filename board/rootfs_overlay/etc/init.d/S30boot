@@ -5,6 +5,9 @@ case "$1" in
         echo performance > /sys/devices/platform/fde60000.gpu/devfreq/fde60000.gpu/governor
         echo performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
+	echo disabled > /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-battery/power/wakeup
+	echo disabled > /sys/devices/platform/fdd40000.i2c/i2c-0/0-0020/rk817-charger.7.auto/power_supply/rk817-charger/power/wakeup
+
         brightnessctl -r
         #amixer -q sset 'Playback Path' SPK
         alsactl restore

@@ -15,7 +15,6 @@ echo mem > /sys/power/state
 echo 0 > /sys/class/input/event1/device/inhibited
 
 if [ -z "$(cat /sys/class/rtc/rtc0/wakealarm)" ]; then
-	echo "poweroff" >> $f
 	poweroff
 else
 	echo 0 > /sys/class/rtc/rtc0/wakealarm

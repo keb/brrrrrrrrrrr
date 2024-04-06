@@ -7,6 +7,7 @@
 - RetroArch 1.18
 - Sway
 - Upgradable and reset to factory
+- Ludicrous mode by default: instant suspend/resume with poweroff fallback
 - Ridiculous mode (like quick mode), enable by holding 'A' on startup
 
 ## How to build

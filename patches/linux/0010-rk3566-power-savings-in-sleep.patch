@@ -1,0 +1,107 @@
+From c5445a34cb6579f580a989483f130f670a3a5f6e Mon Sep 17 00:00:00 2001
+From: brrrrrrrrrr <brrrrrrrrrr@brrrrrrrrrr>
+Date: Sun, 7 Apr 2024 21:15:25 -0400
+Subject: [PATCH] rk3566 power savings in sleep
+
+- disable some wakeup-sources
+- turn a bunch of regulators off in suspend
+---
+ .../dts/rockchip/rk3566-anbernic-rgxx3.dtsi   | 19 ++++++++++++-------
+ arch/arm64/boot/dts/rockchip/rk356x.dtsi      |  2 +-
+ 2 files changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
+index 5cd11e962c81..6f329adbb0fa 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3566-anbernic-rgxx3.dtsi
+@@ -193,7 +193,7 @@ vcc_wifi: regulator-vcc-wifi {
+ 		gpio = <&gpio0 RK_PA0 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-0 = <&vcc_wifi_h>;
+ 		pinctrl-names = "default";
+-		regulator-always-on;
++		//regulator-always-on;
+ 		regulator-boot-on;
+ 		regulator-min-microvolt = <3300000>;
+ 		regulator-max-microvolt = <3300000>;
+@@ -272,7 +272,7 @@ rk817: pmic@20 {
+ 		#sound-dai-cells = <0>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&i2s1m0_mclk>, <&pmic_int_l>;
+-		wakeup-source;
++		//wakeup-source;
+ 
+ 		vcc1-supply = <&vcc_sys>;
+ 		vcc2-supply = <&vcc_sys>;
+@@ -318,7 +318,8 @@ vcc_ddr: DCDC_REG3 {
+ 				regulator-initial-mode = <0x2>;
+ 				regulator-name = "vcc_ddr";
+ 				regulator-state-mem {
+-					regulator-on-in-suspend;
++					//regulator-on-in-suspend;
++					regulator-off-in-suspend;
+ 				};
+ 			};
+ 
+@@ -330,7 +331,8 @@ vcc_3v3: DCDC_REG4 {
+ 				regulator-initial-mode = <0x2>;
+ 				regulator-name = "vcc_3v3";
+ 				regulator-state-mem {
+-					regulator-on-in-suspend;
++					//regulator-on-in-suspend;
++					regulator-off-in-suspend;
+ 					regulator-suspend-microvolt = <3300000>;
+ 				};
+ 			};
+@@ -342,7 +344,8 @@ vcca1v8_pmu: LDO_REG1 {
+ 				regulator-max-microvolt = <1800000>;
+ 				regulator-name = "vcca1v8_pmu";
+ 				regulator-state-mem {
+-					regulator-on-in-suspend;
++					//regulator-on-in-suspend;
++					regulator-off-in-suspend;
+ 					regulator-suspend-microvolt = <1800000>;
+ 				};
+ 			};
+@@ -365,7 +368,8 @@ vdda0v9_pmu: LDO_REG3 {
+ 				regulator-max-microvolt = <900000>;
+ 				regulator-name = "vdda0v9_pmu";
+ 				regulator-state-mem {
+-					regulator-on-in-suspend;
++					//regulator-on-in-suspend;
++					regulator-off-in-suspend;
+ 					regulator-suspend-microvolt = <900000>;
+ 				};
+ 			};
+@@ -399,7 +403,8 @@ vcc3v3_pmu: LDO_REG6 {
+ 				regulator-max-microvolt = <3300000>;
+ 				regulator-name = "vcc3v3_pmu";
+ 				regulator-state-mem {
+-					regulator-on-in-suspend;
++					//regulator-on-in-suspend;
++					regulator-off-in-suspend;
+ 					regulator-suspend-microvolt = <3300000>;
+ 				};
+ 			};
+diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+index 1379e914623f..4149c25703a7 100644
+--- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
+@@ -95,6 +95,7 @@ opp-408000000 {
+ 			opp-hz = /bits/ 64 <408000000>;
+ 			opp-microvolt = <900000 900000 1150000>;
+ 			clock-latency-ns = <40000>;
++			opp-suspend;
+ 		};
+ 
+ 		opp-600000000 {
+@@ -105,7 +106,6 @@ opp-600000000 {
+ 		opp-816000000 {
+ 			opp-hz = /bits/ 64 <816000000>;
+ 			opp-microvolt = <900000 900000 1150000>;
+-			opp-suspend;
+ 		};
+ 
+ 		opp-1104000000 {
+-- 
+2.44.0
+

@@ -65,7 +65,7 @@ ln -sf ../bin/busybox ${temp_dir}/sbin/switch_root
 ln -sf ../bin/busybox ${temp_dir}/sbin/mkfs.ext2
 ln -sf ../bin/busybox ${temp_dir}/sbin/halt
 
-apps=('[' '[[' ash sh cat clear cp dmesg echo ls mkdir mount mv rm usleep sleep test umount md5sum mkfifo mktemp less ln find basename vi grep reboot poweroff)
+apps=('[' '[[' ash sh cat clear cp dmesg echo printf ls mkdir mount mv rm usleep sleep test umount md5sum mkfifo mktemp less ln find basename vi grep reboot poweroff)
 for app in "${apps[@]}"; do
     ln -sf busybox ${temp_dir}/bin/$app
 done

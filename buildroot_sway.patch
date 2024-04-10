@@ -24,10 +24,17 @@ index 882791b917..b41784af5e 100644
  LIBXKBCOMMON_SOURCE = libxkbcommon-$(LIBXKBCOMMON_VERSION).tar.xz
  LIBXKBCOMMON_LICENSE = MIT/X11
 diff --git a/package/sway/Config.in b/package/sway/Config.in
-index 4f6d9fb215..34605e0bc3 100644
+index 4f6d9fb215..e4e904896d 100644
 --- a/package/sway/Config.in
 +++ b/package/sway/Config.in
-@@ -18,6 +18,7 @@ config BR2_PACKAGE_SWAY
+@@ -1,6 +1,5 @@
+ config BR2_PACKAGE_SWAY
+ 	bool "sway"
+-	depends on BR2_PACKAGE_SYSTEMD # is required by the sd-bus provider
+ 	depends on !BR2_STATIC_LIBS # wlroots
+ 	depends on BR2_TOOLCHAIN_HAS_THREADS # pango, wlroots
+ 	depends on BR2_PACKAGE_HAS_LIBEGL # wlroots
+@@ -18,6 +17,7 @@ config BR2_PACKAGE_SWAY
  	select BR2_PACKAGE_CAIRO
  	select BR2_PACKAGE_CAIRO_PNG
  	select BR2_PACKAGE_PANGO
@@ -35,6 +42,18 @@ index 4f6d9fb215..34605e0bc3 100644
  	select BR2_PACKAGE_XKEYBOARD_CONFIG # runtime
  	help
  	  i3-compatible Wayland compositor
+@@ -54,9 +54,8 @@ config BR2_PACKAGE_SWAY_SWAYNAG
+ 
+ endif # BR2_PACKAGE_SWAY
+ 
+-comment "sway needs systemd, udev, EGL w/ Wayland backend and OpenGL ES support"
+-	depends on !BR2_PACKAGE_SYSTEMD || \
+-		!BR2_PACKAGE_HAS_UDEV || \
++comment "sway needs udev, EGL w/ Wayland backend and OpenGL ES support"
++	depends on !BR2_PACKAGE_HAS_UDEV || \
+ 		!BR2_PACKAGE_HAS_LIBEGL || \
+ 		!BR2_PACKAGE_HAS_LIBEGL_WAYLAND || \
+ 		!BR2_PACKAGE_HAS_LIBGLES
 diff --git a/package/sway/sway.hash b/package/sway/sway.hash
 index 86b6581f1c..6cadbc0b40 100644
 --- a/package/sway/sway.hash

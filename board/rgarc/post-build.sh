@@ -30,9 +30,9 @@ iface usb0 inet static
 EOF
 
 # copy dtbs
-rm -rf "${BINARIES_DIR}/rockchip"
-mkdir -p "${BINARIES_DIR}/rockchip"
-find "${TARGET_DIR}"/../build/linux-*/ -name rk3566-anbernic-rg-arc\*.dtb -exec cp -f {} "${BINARIES_DIR}/rockchip/" \;
+rm -rf ${BINARIES_DIR}/rockchip
+mkdir -p ${BINARIES_DIR}/rockchip
+cp -f ${TARGET_DIR}/../build/linux-*/arch/arm64/boot/dts/rockchip/rk3566-anbernic-{rg-arc-d,rg-arc-s,rg353ps,rg353p,rg353v,rg353vs}.dtb ${BINARIES_DIR}/rockchip/
 
 cp -v ${BOARD_DIR}/extlinux.conf ${BINARIES_DIR}/
 mkdir -p ${BINARIES_DIR}/iwd
@@ -47,11 +47,12 @@ ${BOARD_DIR}/post-build-personal.sh || true
 temp_dir=$(mktemp -d)
 
 install -D -m 775 ${BOARD_DIR}/init ${temp_dir}/init
-for bin in bin/busybox usr/bin/evtest usr/sbin/gdisk usr/sbin/partprobe usr/bin/evsieve usr/bin/dialog; do
+install -D -m 775 ${BOARD_DIR}/brrrupdate ${temp_dir}/brrrupdate
+for bin in bin/busybox bin/lsblk usr/bin/evtest usr/sbin/gdisk usr/sbin/partprobe usr/bin/evsieve usr/bin/dialog usr/bin/ldd; do
     install -D -m 775 ${TARGET_DIR}/${bin} ${temp_dir}/${bin}
 done
 
-for lib in lib/ld-linux-aarch64.so.1 lib64/libresolv.so.2 usr/lib64/libparted.so.2 lib64/libblkid.so.1 lib64/libuuid.so.1 usr/lib64/libreadline.so.8 usr/lib64/libncurses.so.6 lib64/libc.so.6 lib64/libstdc++.so.6 lib64/libm.so.6 lib64/libgcc_s.so.1 usr/lib64/libevdev.so.2 usr/share/terminfo/l/linux; do
+for lib in lib/ld-linux-aarch64.so.1 lib64/libresolv.so.2 usr/lib64/libparted.so.2 lib64/libblkid.so.1 lib64/libuuid.so.1 usr/lib64/libreadline.so.8 usr/lib64/libncurses.so.6 lib64/libc.so.6 lib64/libstdc++.so.6 lib64/libm.so.6 lib64/libgcc_s.so.1 usr/lib64/libevdev.so.2 usr/share/terminfo/l/linux lib64/libmount.so.1 lib64/libsmartcols.so.1 lib64/libudev.so.1 usr/lib/libcap.so.2; do
     install -D -m 775 ${TARGET_DIR}/${lib} ${temp_dir}/${lib}
 done
 
@@ -65,7 +66,7 @@ ln -sf ../bin/busybox ${temp_dir}/sbin/switch_root
 ln -sf ../bin/busybox ${temp_dir}/sbin/mkfs.ext2
 ln -sf ../bin/busybox ${temp_dir}/sbin/halt
 
-apps=('[' '[[' ash sh cat clear cp dmesg echo printf ls mkdir mount mv rm usleep sleep test umount md5sum mkfifo mktemp less ln find basename vi grep reboot poweroff)
+apps=('[' '[[' ash sh cat chvt clear cp dmesg echo printf ls mkdir mount mv rm usleep sleep test umount md5sum mkfifo mktemp less ln find basename vi grep reboot poweroff sync)
 for app in "${apps[@]}"; do
     ln -sf busybox ${temp_dir}/bin/$app
 done

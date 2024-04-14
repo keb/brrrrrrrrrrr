@@ -10,7 +10,6 @@ input type:keyboard {
 
 output DSI-1 {
     bg #000000 solid_color
-    transform 90
     max_render_time off
 }
 
@@ -35,7 +34,7 @@ bar {
 
     colors {
         statusline #ebdbb2
-	separator #a89984
+	    separator #a89984
         background #8f3f7100
     }
 }
@@ -52,12 +51,12 @@ bar {
 
     colors {
         statusline #ebdbb2
-	separator #a89984
+	    separator #a89984
         background #8f3f7100
     }
 }
 
-exec_always "killall evsieve; evsieve \
+exec_always "killall -q evsieve; evsieve \
 		--input /dev/input/by-path/platform-adc-keys-event-joystick \
 		--input /dev/input/by-path/platform-sound-event \
 		--map btn:mode key:leftmeta \

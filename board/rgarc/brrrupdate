@@ -1,0 +1,28 @@
+#!/bin/ash
+
+update_path="$1"
+target_path="$2"
+
+if ! ls ${update_path}/* &>/dev/null; then
+	exit 0
+fi
+
+if [ -e ${update_path}/sums ]; then
+	echo -e ">> Verifying checksums\n"
+	cd "$update_path"
+	if ! md5sum -c sums; then
+		echo -e "\n\e[31mChecksum verification failed"
+		exit 1
+	fi
+fi
+
+echo -e "\n>> Updating\n"
+
+mv -fv "${update_path}/Image" "${target_path}/"
+mv -fv "${update_path}/initrd.gz" "${target_path}/"
+mv -fv "${update_path}/rootfs.erofs" "${target_path}/"
+mv -fv "${update_path}/*.dtb" "${target_path}/rockchip/"
+mv -fv "${update_path}/extlinux.conf" "${target_path}/extlinux/"
+rm -f "${update_path}/sums"
+
+echo -e "\n>> Update complete"

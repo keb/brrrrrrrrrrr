@@ -6,6 +6,11 @@ fifo=$(mktemp)
 rm -f $fifo
 mkfifo $fifo
 
+stdin=""
+if read -t 0; then
+	stdin=$(cat)
+fi
+
 gamepad_dev="/dev/input/$(basename $(echo /sys/devices/platform/gpio-keys-control/input/*/event*))"
 
 ev_input() {
@@ -23,7 +28,7 @@ ev_input() {
 
 ev_input
 
-dialog "$@" --input-fd 3 3< $fifo & dialog_pid=$!
+echo "$stdin" | dialog "$@" --input-fd 3 3< $fifo & dialog_pid=$! 
 
 wait $dialog_pid
 kill $fifo_pid

@@ -2,54 +2,50 @@
 
 #set -euo pipefail
 
-mkdir -p /proc /sys /tmp
+mkdir -p /dev /proc /sys /tmp
 
 mount -t devtmpfs none /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t tmpfs tmpfs /tmp
 
+status_text=""
+
+function update_status() {
+    status_text="$1"
+    status_len=${#status_text}
+    padding=$(( (80 - $status_len) / 2 ))
+    echo -en "\e[22;1H\e[2K\e[22;${padding}H\e[37m${status_text}" > /dev/tty1
+}
+
 function logo() {
     echo -en "\e[2J\e[H\e[35m" > /dev/tty1
     cat /logo > /dev/tty1
-}
-
-function status() {
-    echo -en "\n\e[30G\e[95m* \e[37m$1" > /dev/tty1
+    update_status "$status_text"
 }
 
 #exec 1>/dev/tty1 2>&1
 
-while ! ls -l /dev/mmcblk1p1 > /dev/null; do
-    status "Waiting for mmcblk1p1"
-    usleep 1000
-done
-
-mkdir -p /boot /root_fs /overlay /mnt
+mkdir -p /boot /rootfs /overlay /new_root
 
 gamepad_dev="/dev/input/$(basename $(echo /sys/devices/platform/gpio-keys-control/input/*/event*))"
-recovery_menu=0
-reset=0
-
-if [ ! -e /dev/mmcblk1p2 ]; then
-    status "Creating overlay"
-    echo -en "x\ne\nm\nn\n\n\n+1G\n8300\nw\ny\n" | /usr/sbin/gdisk /dev/mmcblk1
-    status "Partition probing"
-    /usr/sbin/partprobe /dev/mmcblk1
-    status "Formatting overlay"
-    /sbin/mkfs.ext2 -L overlay /dev/mmcblk1p2
+reset_overlay=0
+root_dev=/dev/mmcblk0
+if lsblk | grep -q mmcblk0boot0; then
+    root_dev=/dev/mmcblk1
 fi
 
 evtest --query $gamepad_dev EV_KEY BTN_TL
 if [ $? -eq 10 ]; then
-    cmd=$(bialog --no-tags --menu "BRRR :: Recovery Menu" 0 0 0 boot "Boot" reset "Factory Reset" shell "Shell" 2>&1 > /dev/tty1); clear > /dev/tty1
+    cmd=$(bialog --no-tags --menu "BRRR :: Recovery Menu" 0 0 0 boot "Boot" reset "Factory Reset" shell "Shell" > /dev/tty1); clear > /dev/tty1
     case "$cmd" in
         reset)
-            reset=1
+            reset_overlay=1
             ;;
         shell)
+            chvt 2
             /bin/ash
-            clear > /dev/tty1
+            chvt 1
             ;;
         *)
             ;;
@@ -58,61 +54,55 @@ fi
 
 logo
 
-status "Mounting boot"
-mount /dev/mmcblk1p1 /boot
+overlay_dev="${root_dev}p2"
+if [ ! -e "$overlay_dev" ]; then
+    update_status "Creating overlay at $overlay_dev"
+    echo -en "x\ne\nm\nn\n\n\n+1G\n8300\nw\ny\n" | /usr/sbin/gdisk ${root_dev}
+    /usr/sbin/partprobe ${root_dev}
+    update_status "Formatting overlay $overlay_dev"
+    /sbin/mkfs.ext2 -L overlay "$overlay_dev"
+fi
+
+boot_dev=${root_dev}p1
+update_status "Mounting boot ${boot_dev} to /boot"
+mount ${boot_dev} /boot
 
 mkdir -p /boot/update
 
-checksum_ok=1
-if [ -e /boot/update/sums ]; then
-    status "Verifying update checksums"
-    if ! (cd /boot/update && md5sum -c sums); then
-        status "\e[31mChecksum mismatch. Skipping update.\e[0m"
-        checksum_ok=0
-        md5sum -c sums > /dev/tty1
-        sleep 5
-    else
-        rm /boot/update/sums
-    fi
+if ls /boot/update/* &>/dev/null; then
+    echo -e "\n" > /dev/tty1
+    /brrrupdate /boot/update /boot > /dev/tty1
+    sync
+    sleep 5
 fi
 
-if [ "$checksum_ok" -eq 1 ]; then
-    for f in rootfs.erofs Image initrd.gz; do
-        if [ -f /boot/update/$f ]; then
-            status "Moving $f"
-            mv /boot/update/$f /boot/
-        fi
-    done
-fi
+logo
+update_status "Mounting /boot/rootfs.erofs"
+mount -t erofs /boot/rootfs.erofs /rootfs 
 
-status "Mounting erofs"
-mount -t erofs /boot/rootfs.erofs /root_fs \
-    || (echo "Failed to mount rootfs" > /dev/tty1)
-
-status "Mounting overlay"
-mount -o noatime /dev/mmcblk1p2 /overlay \
-    || (echo "Failed to mount /dev/mmcblk1p2")
+update_status "Mounting overlay $overlay_dev"
+mount -o noatime $overlay_dev /overlay
 
 mkdir -p /overlay/overlay /overlay/work
 
-if [ $reset -eq 1 ]; then
+if [ $reset_overlay -eq 1 ]; then
     mv /overlay/overlay/userdata /overlay/userdata
     rm -rf /overlay/overlay/*
     mv /overlay/userdata /overlay/overlay/userdata
-    #[ -e /overlay/overlay/userdata ] && mv /overlay/overlay/userdata /overlay/overlay/.userdata
-    #[ -e /overlay/overlay/.userdata ] && mv /overlay/overlay/.userdata /overlay/overlay/userdata
     bialog --msgbox "Factory Reset Complete" 5 40 > /dev/tty1; clear > /dev/tty1
     logo
 fi
 
-status "Mouting overlay to mnt"
-mount -t overlay root_overlay -o lowerdir=/root_fs,upperdir=/overlay/overlay,workdir=/overlay/work /mnt
+update_status "Mouting new root"
+mount -t overlay root_overlay -o lowerdir=/rootfs,upperdir=/overlay/overlay,workdir=/overlay/work /new_root
 
-logo
-mount --move /boot /mnt/boot
-mount --move /proc /mnt/proc
-mount --move /sys /mnt/sys
-mount --move /dev /mnt/dev
+update_status ""
+mount --move /boot /new_root/boot
+mount --move /overlay /new_root/mnt/overlay
+mount --move /rootfs /new_root/mnt/rootfs
+mount --move /proc /new_root/proc
+mount --move /sys /new_root/sys
+mount --move /dev /new_root/dev
 
-exec switch_root /mnt /sbin/init
-
+cd /new_root
+exec switch_root . /sbin/init

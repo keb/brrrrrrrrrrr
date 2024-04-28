@@ -30,10 +30,7 @@ mkdir -p /boot /rootfs /overlay /new_root
 
 gamepad_dev="/dev/input/$(basename $(echo /sys/devices/platform/gpio-keys-control/input/*/event*))"
 reset_overlay=0
-root_dev=/dev/mmcblk0
-if lsblk | grep -q mmcblk0boot0; then
-    root_dev=/dev/mmcblk1
-fi
+root_dev=/dev/mmcblk1
 
 evtest --query $gamepad_dev EV_KEY BTN_TL
 if [ $? -eq 10 ]; then

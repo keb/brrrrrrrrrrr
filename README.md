@@ -49,7 +49,7 @@ if you want it back.
 
 ## Usage
 
-### Networking
+### Wi-Fi networking
 
 #### Via RetroArch
 
@@ -63,9 +63,22 @@ Add iwd ssid config in `/boot/iwd/` according to
 https://wiki.archlinux.org/title/iwd#WPA-PSK and 
 https://man.archlinux.org/man/iwd.network.5
 
+### RNDIS USB ethernet
+
+Besides Wi-Fi, the device can also be networked using RNDIS USB ethernet. In this case the device is connected
+over USB to a host PC which shares its network connection (and may also simultaneously charge the device).
+
+On Windows 11 a suitable driver must be installed manually as follows
+1. Connect the DC USB port to a PC
+2. Go to the Windows Device Manager
+3. Verify device shows up as e.g., Ports (COM & LPT) > USB Serial Device (COM3)
+4. Right click > Update Driver
+5. Search automatically for drivers > Search for updated drivers on Windows Update > Advanced options > Optional updates > Driver updates
+6. Select "Acer Incorporated. - Other hardware - USB Ethernet/RNDIS Gadget", then click Download & Install
+
 ### SSH and SFTP
 
-You can connect to your device via SSH and SFTP, as follows
+You can connect to your device via SSH and SFTP as follows
 1. Enable and configure networking
 2. Note the device's IP shown in Information > Network Information
 3. Connect via SSH or SFTP using login/pass: `root` / `BRRRRRRRRRR`

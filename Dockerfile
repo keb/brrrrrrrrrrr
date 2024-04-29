@@ -1,5 +1,5 @@
 # docker build -t brrr .
-# docker run -v .:/workspace/ext brrr bash -c "patch -p1 < /workspace/ext/buildroot*.patch && make BR2_EXTERNAL=/workspace/ext rgarc_defconfig && make -j16 && cp -rv output/images /workspace/ext/output"
+# docker run -v .:/workspace/ext brrr bash -c "for i in /workspace/ext/buildroot*.patch; do patch -p1 < \$i; done && make BR2_EXTERNAL=/workspace/ext rgarc_defconfig && make -j16 && cp -rv output/images /workspace/ext/output"
 
 FROM debian:latest
 

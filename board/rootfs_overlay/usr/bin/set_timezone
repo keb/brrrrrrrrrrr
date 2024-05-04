@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+    tz=$(curl --insecure --fail --silent https://ipapi.co/timezone)
+    if [ -z "$tz" ]; then
+        echo "Failed to obtain time zone from IP (no internet? site down?)"
+        exit 1
+    fi
+else
+    tz=$1
+fi
+
+if [ ! -f /usr/share/zoneinfo/$tz ]; then
+    echo "Time zone info /usr/share/zoneinfo/$tz not found"
+    exit 2
+fi
+
+echo "Using time zone $tz"
+
+echo $tz > /etc/timezone
+ln -sf /usr/share/zoneinfo/$tz /etc/localtime

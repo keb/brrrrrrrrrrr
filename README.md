@@ -88,6 +88,14 @@ You can connect to your device via SSH and SFTP as follows
 Connecting an external keyboard to the OTG USB port, you can switch to tty2 from Sway/RetroArch by
 pressing ctrl+alt+f2, and switch back to Sway/RetroArch by alt-f1. The same login/pass as for SSH and SFTP apply.
 
+### Set time zone
+
+To set the time zone for the clock time shown in the on-screen display, there are two options (from SSH)
+- Run `set_timezone <timezone>`, e.g., `set_timezone Europe/Berlin`
+- Run `set_timezone` (without argument) to automatically geolocate the correct time zone by IP (requires internet set up first)
+
+It may take a minute for change in time zone to take effect in the on-screen display.
+
 ### On boot
 
 Hold `L1` to enter Recovery Menu.
@@ -96,6 +104,7 @@ Hold `L1` to enter Recovery Menu.
 
 - Power:              Suspend
 - F + Power:          Power off
+- hold F              show on-screen display
 - volup:              volume up
 - voldown:            volume down
 - select + volup:     brightness up

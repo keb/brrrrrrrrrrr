@@ -1,0 +1,50 @@
+name: build brrr
+
+on:
+  push:
+    branches:
+      - keb/arc
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Install dependencies
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y \
+            build-essential curl bc cpio rsync file git wget unzip python3 libssl-dev dosfstools zstd
+
+      # Download and extract Buildroot
+      - name: Download and extract Buildroot
+        run: |
+          BR_VER=2024.02.1
+          mkdir -p /workspace
+          curl -s -L https://github.com/buildroot/buildroot/archive/refs/tags/${BR_VER}.tar.gz | tar xvz -C /workspace
+          ls -l /workspace/
+
+      # Apply patches and run Buildroot
+      - name: Apply patches and build
+        run: |
+          cd /workspace/buildroot-${{ env.BR_VER }}
+          for i in ${{ github.workspace }}/buildroot*.patch; do patch -p1 < $i; done
+          make BR2_EXTERNAL=${{ github.workspace }} rgarc_defconfig
+          make -j$(nproc)
+
+      # Copy output to workspace
+      - name: Copy output
+        run: |
+          cp -rv /workspace/buildroot-${{ env.BR_VER }}/output/images ${{ github.workspace }}/output
+
+      # Upload the output as a release artifact
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-image
+          path: ./output

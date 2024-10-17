@@ -9,7 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
+    env:
+      BR_VER: 2024.02.1
+
     steps:
       # Checkout the code
       - name: Checkout repository
@@ -24,9 +27,8 @@ jobs:
       # Download and extract Buildroot
       - name: Download and extract Buildroot
         run: |
-          BR_VER=2024.02.1
           mkdir -p ${{ github.workspace }}/workspace
-          curl -s -L https://github.com/buildroot/buildroot/archive/refs/tags/${BR_VER}.tar.gz | tar xvz -C ${{ github.workspace }}/workspace
+          curl -s -L https://github.com/buildroot/buildroot/archive/refs/tags/${{ env.BR_VER }}.tar.gz | tar xvz -C ${{ github.workspace }}/workspace
           ls -l ${{ github.workspace }}/workspace/
 
       # Apply patches and run Buildroot

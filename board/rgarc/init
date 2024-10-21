@@ -19,7 +19,7 @@ function update_status() {
 }
 
 function logo() {
-    echo -en "\e[2J\e[H\e[35m" > /dev/tty1
+    echo -en "\e[2J\e[H\e[37m" > /dev/tty1
     cat /logo > /dev/tty1
     update_status "$status_text"
 }

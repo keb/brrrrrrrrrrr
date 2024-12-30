@@ -82,14 +82,13 @@ mount -o noatime $overlay_dev /overlay
 
 mkdir -p /overlay/overlay /overlay/work
 
-# keb: disabling this since i never want to accidentally factory reset
-# if [ $reset_overlay -eq 1 ]; then
-#     mv /overlay/overlay/userdata /overlay/userdata
-#     rm -rf /overlay/overlay/*
-#     mv /overlay/userdata /overlay/overlay/userdata
-#     bialog --msgbox "Factory Reset Complete" 5 40 > /dev/tty1; clear > /dev/tty1
-#     logo
-# fi
+if [ $reset_overlay -eq 1 ]; then
+    mv /overlay/overlay/userdata /overlay/userdata
+    rm -rf /overlay/overlay/*
+    mv /overlay/userdata /overlay/overlay/userdata
+    bialog --msgbox "Factory Reset Complete" 5 40 > /dev/tty1; clear > /dev/tty1
+    logo
+fi
 
 update_status "Mouting new root"
 mount -t overlay root_overlay -o lowerdir=/rootfs,upperdir=/overlay/overlay,workdir=/overlay/work /new_root

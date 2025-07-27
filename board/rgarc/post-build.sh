@@ -10,8 +10,10 @@ mkdir -p ${BINARIES_DIR}
 mkdir -p ${TARGET_DIR}/boot
 mkdir -p ${TARGET_DIR}/userdata
 mkdir -p ${TARGET_DIR}/root/.cache
+mkdir -p ${TARGET_DIR}/root/.config/syncthing
 sed -i ${TARGET_DIR}/etc/ssh/sshd_config -e "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/"
 rm -f ${TARGET_DIR}/etc/init.d/{S01syslogd,S02klogd,S01seedrng}
+chmod +x ${TARGET_DIR}/etc/init.d/S85syncthing
 rm -f ${TARGET_DIR}/etc/acpi/events/powerbtn
 mv ${TARGET_DIR}/etc/init.d/S40iwd ${TARGET_DIR}/etc/init.d/S70iwd 2> /dev/null || true
 mv ${TARGET_DIR}/etc/init.d/S49chrony ${TARGET_DIR}/etc/init.d/S91chrony 2> /dev/null || true
